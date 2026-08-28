@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第三方SDK清单 · Ming Assistant</title>
+<link rel="stylesheet" href="./privacy.css">
+</head>
+<body>
+<nav class="topbar">
+  <span class="brand">Ming Assistant</span>
+  <a href="index.html">关于</a>
+  <a href="user-agreement.html">用户协议</a>
+  <a href="privacy-policy.html">隐私政策</a>
+  <a href="annex-collection.html">个人信息收集清单</a>
+  <a class="active" href="annex-sdk.html">第三方SDK清单</a>
+  <a href="annex-permission.html">权限使用说明</a>
+  <a href="annex-share.html">第三方信息共享清单</a>
+</nav>
+<div class="wrap">
+  <h1>第三方SDK清单</h1>
+  <p class="sub">如实说明本应用接入了哪些第三方 SDK 及其行为。</p>
+
+  <h2>一、结论</h2>
+  <p>本应用<strong>未接入任何用于广告、统计、推送、崩溃上报、社交分享或地图定位的第三方 SDK</strong>。不会向任何第三方 SDK 提供您的个人信息。</p>
+
+  <h2>二、实际使用的第三方开源组件</h2>
+  <p>为提供页面渲染、网络通信等基础功能，本应用依赖以下<strong>开源软件库</strong>。它们以“软件库”的形式存在于应用内，用于实现基础技术能力，<strong>不收集任何用户个人信息，不向开发者以外的任何主体传输数据</strong>，亦不包含任何第三方服务端组件：</p>
+  <table>
+    <tr><th>组件</th><th>用途</th><th>是否收集个人信息</th></tr>
+    <tr><td>Jetpack Compose / Material3（AndroidX）</td><td>界面渲染，Android 官方组件</td><td>否</td></tr>
+    <tr><td>Jetpack DataStore</td><td>本地（设备内）轻量存储登录会话</td><td>否（数据仅存本机，由您控制删除）</td></tr>
+    <tr><td>Jetpack WorkManager</td><td>应用内定时任务（轮询开播状态）</td><td>否</td></tr>
+    <tr><td>Retrofit / OkHttp</td><td>与开发者自己的服务器进行网络请求</td><td>否（仅与开发者服务器通信）</td></tr>
+    <tr><td>kotlinx-serialization</td><td>网络数据解析</td><td>否</td></tr>
+    <tr><td>Coil</td><td>加载直播间封面图片</td><td>否（图片按请求地址加载，公开直播间封面）</td></tr>
+  </table>
+  <p class="muted">注：B站 直播状态由服务器通过 B站 面向公众的开放接口查询，不经过任何 SDK；开播通知由应用本地生成并通过系统通知栏展示，不经过任何推送 SDK。</p>
+
+  <h2>三、与服务端的通信</h2>
+  <ul>
+    <li>应用仅与开发者自有的服务器通信，完成注册、登录、舰礼/歌单数据同步、直播状态查询；</li>
+    <li>直播状态查询使用 B站 公开接口，仅提交公开的直播间 UID，不涉及您的个人信息。</li>
+  </ul>
+
+  <h2>四、共享与披露</h2>
+  <p>我们不会将通过与第三方组件相关的任何信息进行共享、售卖或用于与本应用无关的用途。如未来接入新增 SDK，将同步更新本清单并在应用内提示。</p>
+</div>
+</body>
+</html>

@@ -18,6 +18,9 @@ interface ApiService {
     @GET("api/auth/me")
     suspend fun me(): AuthResponse
 
+    @DELETE("api/auth/account")
+    suspend fun deleteAccount()
+
     // ---- Live ----
     @GET("api/live/status")
     suspend fun liveStatus(): LiveStatus

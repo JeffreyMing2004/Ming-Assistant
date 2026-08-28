@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>个人信息收集清单 · Ming Assistant</title>
+<link rel="stylesheet" href="./privacy.css">
+</head>
+<body>
+<nav class="topbar">
+  <span class="brand">Ming Assistant</span>
+  <a href="index.html">关于</a>
+  <a href="user-agreement.html">用户协议</a>
+  <a href="privacy-policy.html">隐私政策</a>
+  <a class="active" href="annex-collection.html">个人信息收集清单</a>
+  <a href="annex-sdk.html">第三方SDK清单</a>
+  <a href="annex-permission.html">权限使用说明</a>
+  <a href="annex-share.html">第三方信息共享清单</a>
+</nav>
+<div class="wrap">
+  <h1>个人信息收集清单</h1>
+  <p class="sub">以下逐项列明我们在您使用本应用过程中收集的个人信息及其用途。</p>
+
+  <h2>一、账号相关</h2>
+  <table>
+    <tr><th>信息种类</th><th>是否收集</th><th>收集方式</th><th>收集目的</th><th>是否必需</th></tr>
+    <tr><td>用户名</td><td>是</td><td>注册/登录时由您填写</td><td>创建与识别账号、登录</td><td>必需</td></tr>
+    <tr><td>密码</td><td>是</td><td>注册/登录时由您填写（仅存 BCrypt 哈希）</td><td>身份验证</td><td>必需</td></tr>
+    <tr><td>B站UID</td><td>可选</td><td>注册时由您填写</td><td>方便您在舰礼登记中快速关联B站信息</td><td>选填</td></tr>
+    <tr><td>账户ID、注册时间</td><td>是</td><td>系统自动生成</td><td>账号管理与数据归属</td><td>必需</td></tr>
+  </table>
+
+  <h2>二、使用记录</h2>
+  <table>
+    <tr><th>信息种类</th><th>是否收集</th><th>收集方式</th><th>收集目的</th><th>是否必需</th></tr>
+    <tr><td>舰礼登记：昵称</td><td>是</td><td>由您填写</td><td>舰礼登记功能</td><td>必需</td></tr>
+    <tr><td>舰礼登记：B站UID</td><td>可选</td><td>由您填写</td><td>舰礼登记功能</td><td>选填</td></tr>
+    <tr><td>舰礼登记：礼物类型</td><td>是</td><td>由您填写</td><td>舰礼登记功能</td><td>必需</td></tr>
+    <tr><td>歌单：歌名</td><td>是</td><td>由您填写</td><td>歌单管理功能</td><td>必需</td></tr>
+    <tr><td>歌单：歌手、备注</td><td>可选</td><td>由您填写</td><td>歌单管理功能</td><td>选填</td></tr>
+    <tr><td>记录的创建时间</td><td>是</td><td>系统自动生成</td><td>记录展示与管理</td><td>必需</td></tr>
+  </table>
+
+  <h2>三、设备本地信息（不离开设备）</h2>
+  <table>
+    <tr><th>信息种类</th><th>存储位置</th><th>用途</th></tr>
+    <tr><td>登录令牌、用户名、用户ID、B站UID</td><td>设备本地（DataStore）</td><td>保持登录状态</td></tr>
+    <tr><td>最近一次直播状态</td><td>设备本地（DataStore）</td><td>判断是否发生“未开播→开播”变化以触发通知</td></tr>
+  </table>
+
+  <h2>四、不收集的信息</h2>
+  <p>本应用<strong>不收集</strong>：通讯录、位置、相册、相机、麦克风、通话记录、短信、设备唯一标识（如IMEI）、MAC地址、网络访问记录、传感器数据、剪贴板内容、Cookies 或任何形式的精确位置信息。</p>
+
+  <h2>五、说明</h2>
+  <ul>
+    <li>直播开播状态（房间号、标题、在线人数等）来自 B站 面向公众开放的接口，属于公开直播信息，不属于您的个人信息；</li>
+    <li>我们不以任何方式获取您的 B站 账号、密码、私信或 Cookie。</li>
+  </ul>
+</div>
+</body>
+</html>

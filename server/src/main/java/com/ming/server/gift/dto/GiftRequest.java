@@ -12,7 +12,7 @@ public class GiftRequest {
     @Size(max = 50, message = "昵称过长")
     private String nickname;
 
-    @Pattern(regexp = "\\d{1,20}", message = "B站UID必须为数字")
+    @Pattern(regexp = "\\d{0,20}", message = "B站UID必须为数字")
     private String bilibiliUid;
 
     @NotBlank(message = "礼物类型不能为空")

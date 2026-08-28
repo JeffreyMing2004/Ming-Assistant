@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>权限使用说明 · Ming Assistant</title>
+<link rel="stylesheet" href="./privacy.css">
+</head>
+<body>
+<nav class="topbar">
+  <span class="brand">Ming Assistant</span>
+  <a href="index.html">关于</a>
+  <a href="user-agreement.html">用户协议</a>
+  <a href="privacy-policy.html">隐私政策</a>
+  <a href="annex-collection.html">个人信息收集清单</a>
+  <a href="annex-sdk.html">第三方SDK清单</a>
+  <a class="active" href="annex-permission.html">权限使用说明</a>
+  <a href="annex-share.html">第三方信息共享清单</a>
+</nav>
+<div class="wrap">
+  <h1>权限使用说明</h1>
+  <p class="sub">本应用坚持最小权限原则，仅申请下述保障核心功能所必需的权限。</p>
+
+  <table>
+    <tr><th>权限</th><th>用途</th><th>是否必要</th><th>拒绝权限的影响</th><th>撤回方式</th></tr>
+    <tr>
+      <td>网络访问（INTERNET）</td>
+      <td>与服务器通信：登录鉴权、同步舰礼/歌单、查询直播状态</td>
+      <td>必要</td>
+      <td>无法使用任何联网功能，应用不可用</td>
+      <td>系统「设置 → 应用 → Ming Assistant → 移动数据与Wi-Fi」中关闭网络</td>
+    </tr>
+    <tr>
+      <td>通知（POST_NOTIFICATIONS，Android 13 及以上以运行时方式申请）</td>
+      <td>在直播间「明明Uncle」开播时向您发送系统通知提醒</td>
+      <td>必要（用于开播提醒核心功能）</td>
+      <td>将无法收到开播通知，但其余功能（舰礼/歌单管理等）可正常使用</td>
+      <td>系统「设置 → 应用 → Ming Assistant → 通知」随时关闭或开启</td>
+    </tr>
+  </table>
+
+  <h2>说明</h2>
+  <ul>
+    <li>本应用<strong>不申请</strong>通讯录、位置、相册、相机、麦克风、存储、电话、短信等任何其他权限；</li>
+    <li>通知权限仅在您首次启动应用时申请一次；如您拒绝，应用仍可正常使用其余功能，您可在系统设置中随时开启；</li>
+    <li>关闭相关权限即视为撤回相应同意，详见《<a href="privacy-policy.html">隐私政策 · 撤回同意</a>》。</li>
+  </ul>
+</div>
+</body>
+</html>

@@ -32,7 +32,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/live/status").permitAll()
                         .requestMatchers(
                                 "/", "/index.html", "/favicon.ico",
-                                "/admin", "/admin/**", "/morphicons/**"
+                                "/admin", "/admin/**", "/morphicons/**",
+                                "/privacy", "/privacy/**"
                         ).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {

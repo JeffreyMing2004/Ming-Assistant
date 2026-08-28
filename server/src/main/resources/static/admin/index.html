@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ming Assistant · 管理端</title>
+<link rel="stylesheet" href="./styles.css">
+<script type="module" src="./app.js"></script>
+</head>
+<body>
+
+  <!-- 登录视图 -->
+  <div id="login-view" class="view">
+    <form class="login-card" id="login-form" novalidate>
+      <div class="login-brand"><morph-icon data-icon="zap" data-size="34"></morph-icon><h1>Ming Assistant</h1></div>
+      <p class="sub">电脑管理端</p>
+      <label class="field">用户名
+        <input name="username" autocomplete="username" autofocus required>
+      </label>
+      <label class="field">密码
+        <input name="password" type="password" autocomplete="current-password" required>
+      </label>
+      <button type="submit" class="btn primary" id="login-btn">
+        <morph-icon data-icon="log-in" data-size="18"></morph-icon>登 录
+      </button>
+      <p class="err hidden" id="login-err"></p>
+    </form>
+  </div>
+
+  <!-- 主界面 -->
+  <div id="app-view" class="view hidden">
+    <nav class="topbar">
+      <div class="brand">
+        <morph-icon data-icon="zap" data-size="20"></morph-icon>
+        <span>Ming Assistant</span>
+        <span class="dim">管理端</span>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="live"><morph-icon data-icon="activity" data-size="17"></morph-icon>直播状态</button>
+        <button class="tab" data-tab="gifts"><morph-icon data-icon="gift" data-size="17"></morph-icon>舰礼</button>
+        <button class="tab" data-tab="songs"><morph-icon data-icon="music" data-size="17"></morph-icon>歌单</button>
+      </div>
+      <div class="who">
+        <span class="who-name" id="who-name"></span>
+        <button class="btn ghost sm" id="logout"><morph-icon data-icon="log-out" data-size="16"></morph-icon>退出登录</button>
+      </div>
+    </nav>
+
+    <main class="main">
+
+      <!-- 直播状态 -->
+      <section id="sec-live" class="section active">
+        <div class="card live-card">
+          <div class="live-left">
+            <morph-icon id="live-status-icon" data-icon="radio" data-size="46"></morph-icon>
+          </div>
+          <div class="live-body">
+            <div class="row-line">
+              <span class="badge" id="live-badge">…</span>
+              <span class="room" id="live-room"></span>
+            </div>
+            <h2 class="live-title" id="live-title">—</h2>
+            <p class="live-meta" id="live-meta"></p>
+            <p class="live-meta">检查于 <span id="live-checked"></span></p>
+          </div>
+          <div class="live-actions">
+            <a class="btn ghost sm" target="_blank" rel="noopener" id="live-url" hidden>
+              <morph-icon data-icon="external-link" data-size="15"></morph-icon>进入直播间
+            </a>
+            <button class="btn ghost sm" id="live-refresh">
+              <morph-icon data-icon="refresh-cw" data-size="15"></morph-icon>刷新
+            </button>
+          </div>
+        </div>
+        <p class="hint">每 60 秒自动刷新。数据来自后端代理的 B 站直播间公开接口。</p>
+      </section>
+
+      <!-- 舰礼 -->
+      <section id="sec-gifts" class="section">
+        <div class="card">
+          <div class="card-head">
+            <h2>舰礼登记</h2>
+            <span class="count" id="gift-count"></span>
+            <span class="grow"></span>
+            <button class="btn primary sm" data-action="add-gift">
+              <morph-icon data-icon="plus" data-size="16"></morph-icon>新增舰礼
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table class="grid">
+              <thead><tr><th>ID</th><th>昵称</th><th>B站 UID</th><th>礼物类型</th><th>登记时间</th><th class="ops">操作</th></tr></thead>
+              <tbody id="gift-tbody"></tbody>
+            </table>
+          </div>
+          <p class="empty hidden" id="gift-empty">暂无舰礼记录，点击右上角新增。</p>
+        </div>
+      </section>
+
+      <!-- 歌单 -->
+      <section id="sec-songs" class="section">
+        <div class="card">
+          <div class="card-head">
+            <h2>歌单</h2>
+            <span class="count" id="song-count"></span>
+            <span class="grow"></span>
+            <button class="btn primary sm" data-action="add-song">
+              <morph-icon data-icon="plus" data-size="16"></morph-icon>新增歌曲
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table class="grid">
+              <thead><tr><th>ID</th><th>歌名</th><th>歌手</th><th>备注</th><th>创建时间</th><th class="ops">操作</th></tr></thead>
+              <tbody id="song-tbody"></tbody>
+            </table>
+          </div>
+          <p class="empty hidden" id="song-empty">暂无歌曲，点击右上角新增。</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- 新增弹窗 -->
+  <dialog id="modal">
+    <form id="modal-form" novalidate>
+      <div class="modal-head">
+        <h3 id="modal-title"></h3>
+        <button type="button" class="btn ghost sm" id="modal-close"><morph-icon data-icon="x" data-size="16"></morph-icon></button>
+      </div>
+      <div class="modal-body"><div id="modal-fields"></div></div>
+      <p class="err hidden" id="modal-err"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="modal-cancel">取消</button>
+        <button type="submit" class="btn primary" id="modal-save"><morph-icon data-icon="check" data-size="16"></morph-icon>保存</button>
+      </div>
+    </form>
+  </dialog>
+
+</body>
+</html>

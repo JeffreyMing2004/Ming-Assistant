@@ -65,4 +65,27 @@ public class BilibiliLiveService {
             throw new ApiException(HttpStatus.BAD_GATEWAY, "获取B站直播状态失败");
         }
     }
+
+    /**
+     * 获取指定 B站UID 的用户头像 URL。
+     * 接口：GET https://api.live.bilibili.com/live_user/v1/Master/info?uid={uid}
+     * UID 为空、非法或接口异常时返回空串（由前端回退默认头像）。
+     */
+    public String getAvatarFace(String uid) {
+        if (uid == null || !uid.matches("\\d+")) {
+            return "";
+        }
+        try {
+            JsonNode root = restClient.get()
+                    .uri("/live_user/v1/Master/info?uid={uid}", uid)
+                    .retrieve()
+                    .body(JsonNode.class);
+            if (root == null || root.path("code").asInt() != 0) {
+                return "";
+            }
+            return root.path("data").path("info").path("face").asText("");
+        } catch (RuntimeException e) {
+            return "";
+        }
+    }
 }

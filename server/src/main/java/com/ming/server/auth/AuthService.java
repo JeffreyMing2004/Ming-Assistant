@@ -58,6 +58,16 @@ public class AuthService {
         return new AuthResponse(user.getId(), user.getUsername(), user.getBilibiliUid(), null);
     }
 
+    /** 更新用户 B站UID（App 设置页填写，用于获取 B站头像）。 */
+    @Transactional
+    public AuthResponse updateBilibiliUid(Long userId, String bilibiliUid) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> ApiException.notFound("用户不存在"));
+        user.setBilibiliUid(bilibiliUid);
+        userRepository.save(user);
+        return new AuthResponse(user.getId(), user.getUsername(), user.getBilibiliUid(), null);
+    }
+
     /** 注销账号：删除用户及其名下的全部舰礼、歌单数据（不可恢复）。 */
     @Transactional
     public void deleteAccount(Long userId) {

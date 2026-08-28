@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -34,6 +35,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,9 +43,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -56,12 +60,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.ming.mingassistant.data.Session
 
 // ---- 个人中心局部配色（不改全局主题） ----
@@ -134,11 +141,17 @@ fun ProfileScreen(
     val vm: ProfileViewModel = viewModel(factory = factory)
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
     // 原生文档查看器：导航栈支持从「关于与全部合规文件」进入各合规子页
     val docStack = remember { mutableStateListOf<DocPage>() }
-    BackHandler(enabled = docStack.isNotEmpty()) {
-        if (docStack.size > 1) docStack.removeLast() else docStack.clear()
+    BackHandler(enabled = docStack.isNotEmpty() || showSettings) {
+        when {
+            docStack.isNotEmpty() -> if (docStack.size > 1) docStack.removeLast() else docStack.clear()
+            showSettings -> showSettings = false
+        }
     }
+    // 按 B站UID 尝试获取头像；未填写 UID 则不获取（保持默认头像）
+    LaunchedEffect(session.bilibiliUid) { vm.refreshAvatar(session.bilibiliUid) }
 
     Box(
         Modifier
@@ -152,10 +165,10 @@ fun ProfileScreen(
                 .padding(horizontal = 20.dp),
         ) {
             Spacer(Modifier.height(24.dp))
-            ProfileHeader()
+            ProfileHeader(onOpenSettings = { showSettings = true })
             Spacer(Modifier.height(20.dp))
 
-            ProfileAccountCard(session)
+            ProfileAccountCard(session, avatarUrl = vm.avatarUrl)
             Spacer(Modifier.height(20.dp))
 
             LegalDocumentsCard(
@@ -183,6 +196,14 @@ fun ProfileScreen(
                 if (docStack.size > 1) docStack.removeLast() else docStack.clear()
             },
             onOpenDoc = { docStack.add(it) },
+        )
+    }
+
+    if (showSettings) {
+        SettingsScreen(
+            currentUid = session.bilibiliUid,
+            vm = vm,
+            onBack = { showSettings = false },
         )
     }
 
@@ -236,7 +257,7 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun ProfileHeader() {
+private fun ProfileHeader(onOpenSettings: () -> Unit) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -252,7 +273,7 @@ private fun ProfileHeader() {
                 .size(48.dp)
                 .clip(CircleShape)
                 .background(LightPurple)
-                .clickable { /* 设置入口，暂无功能 */ },
+                .clickable(onClick = onOpenSettings),
             contentAlignment = Alignment.Center,
         ) {
             Icon(Icons.Filled.Settings, contentDescription = "设置", tint = AccentPurple, modifier = Modifier.size(24.dp))
@@ -261,7 +282,7 @@ private fun ProfileHeader() {
 }
 
 @Composable
-private fun ProfileAccountCard(session: Session) {
+private fun ProfileAccountCard(session: Session, avatarUrl: String?) {
     Card(
         Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
@@ -278,7 +299,16 @@ private fun ProfileAccountCard(session: Session) {
                         .background(LightPurple),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(Icons.Filled.Person, contentDescription = "头像", tint = AccentPurple, modifier = Modifier.size(36.dp))
+                    if (avatarUrl != null) {
+                        AsyncImage(
+                            model = avatarUrl,
+                            contentDescription = "头像",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    } else {
+                        Icon(Icons.Filled.Person, contentDescription = "头像", tint = AccentPurple, modifier = Modifier.size(36.dp))
+                    }
                 }
                 Spacer(Modifier.width(16.dp))
                 Column(Modifier.weight(1f)) {
@@ -351,9 +381,6 @@ private fun ProfileAccountCard(session: Session) {
                     modifier = Modifier.weight(1f),
                 )
             }
-
-            Spacer(Modifier.height(20.dp))
-            ProfileStatusNotice()
         }
     }
 }
@@ -409,6 +436,125 @@ private fun ProfileStatusNotice() {
             color = TextPrimary,
             modifier = Modifier.weight(1f),
         )
+    }
+}
+
+/** 设置页：B站 UID 填写入口（用于获取 B站头像）+ 通知与推送说明（从个人中心移入）。 */
+@Composable
+private fun SettingsScreen(
+    currentUid: String,
+    vm: ProfileViewModel,
+    onBack: () -> Unit,
+) {
+    var uid by remember(currentUid) { mutableStateOf(currentUid) }
+    val uidError = remember(uid) {
+        if (uid.isNotBlank() && !uid.matches(Regex("^\\d{0,20}$"))) "UID必须为数字（最多20位）" else null
+    }
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(PageBg),
+    ) {
+        Column(Modifier.fillMaxSize()) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(CardWhite)
+                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "返回",
+                        tint = AccentPurple,
+                    )
+                }
+                Text(
+                    "设置",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextPrimary,
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.width(48.dp))
+            }
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
+            ) {
+                Card(
+                    Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = CardWhite),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                ) {
+                    Column(Modifier.padding(20.dp)) {
+                        Text("账号与信息", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
+                        Spacer(Modifier.height(12.dp))
+                        Text("B站 UID", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = uid,
+                            onValueChange = { uid = it },
+                            singleLine = true,
+                            isError = uidError != null,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            placeholder = { Text("例如 88888", color = TextSecondary) },
+                            supportingText = {
+                                Text(
+                                    uidError ?: "填写后将在个人中心获取 B 站头像；未填写则不获取。",
+                                    color = if (uidError != null) DangerRed else TextSecondary,
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        vm.saveError?.let {
+                            Text(it, fontSize = 13.sp, color = DangerRed)
+                            Spacer(Modifier.height(8.dp))
+                        }
+                        if (vm.saved && currentUid == uid.trim()) {
+                            Text("已保存，正在更新头像…", fontSize = 13.sp, color = SuccessGreen)
+                            Spacer(Modifier.height(8.dp))
+                        }
+                        Button(
+                            onClick = {
+                                vm.updateBilibiliUid(uid) { }
+                            },
+                            enabled = !vm.saving && uidError == null && uid.trim() != currentUid,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            shape = RoundedCornerShape(24.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = AccentPurple,
+                                contentColor = Color.White,
+                            ),
+                        ) {
+                            Text(if (vm.saving) "保存中…" else "保存 B站 UID")
+                        }
+                    }
+                }
+                Spacer(Modifier.height(20.dp))
+                Card(
+                    Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = CardWhite),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                ) {
+                    Column(Modifier.padding(20.dp)) {
+                        Text("通知与推送", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
+                        Spacer(Modifier.height(12.dp))
+                        ProfileStatusNotice()
+                    }
+                }
+                Spacer(Modifier.height(32.dp))
+            }
+        }
     }
 }
 

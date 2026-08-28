@@ -57,6 +57,11 @@ class SessionStore(private val context: Context) {
         context.dataStore.edit { prefs -> prefs[Keys.LIVE_STATUS] = status.toString() }
     }
 
+    /** 仅更新 B站UID（设置页保存后同步本地会话）。 */
+    suspend fun saveBilibiliUid(uid: String) {
+        context.dataStore.edit { prefs -> prefs[Keys.BILIBILI_UID] = uid }
+    }
+
     suspend fun loadTokenOnce(): String? = token.first()
 
     suspend fun clear() {

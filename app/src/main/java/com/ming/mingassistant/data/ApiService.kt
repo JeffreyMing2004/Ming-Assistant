@@ -4,7 +4,9 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
 
@@ -18,8 +20,15 @@ interface ApiService {
     @GET("api/auth/me")
     suspend fun me(): AuthResponse
 
+    @PUT("api/auth/me")
+    suspend fun updateBilibiliUid(@Body body: UpdateUidRequest): AuthResponse
+
     @DELETE("api/auth/account")
     suspend fun deleteAccount()
+
+    // ---- B站 ----
+    @GET("api/bilibili/avatar")
+    suspend fun bilibiliAvatar(@Query("uid") uid: String): AvatarResponse
 
     // ---- Live ----
     @GET("api/live/status")

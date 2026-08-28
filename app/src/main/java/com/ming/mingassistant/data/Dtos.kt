@@ -25,6 +25,18 @@ data class AuthResponse(
     val token: String? = null,
 )
 
+/** 更新用户 B站UID（设置页填写，用于获取 B站头像）。 */
+@Serializable
+data class UpdateUidRequest(
+    val bilibiliUid: String,
+)
+
+/** B站用户头像 URL，获取失败/未填 UID 时为空串。 */
+@Serializable
+data class AvatarResponse(
+    val face: String = "",
+)
+
 // ---- Live ----
 @Serializable
 data class LiveStatus(

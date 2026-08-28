@@ -58,6 +58,20 @@ morph-icon { display: inline-flex; align-items: center; justify-content: center;
 .legal a { color: var(--muted); text-decoration: none; }
 .legal a:hover { color: var(--accent); }
 .err { color: var(--red); font-size: 13px; }
+.hint.ok { color: var(--green); }
+
+/* QQ音乐导入预览列表 */
+.qq-preview {
+  max-height: 280px; overflow-y: auto;
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 4px 12px; font-size: 13px;
+}
+.qq-preview ul { list-style: none; }
+.qq-preview li { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--line-soft); }
+.qq-preview li:last-child { border-bottom: none; }
+.qq-preview .num { color: var(--muted); font: 400 12px var(--mono); min-width: 22px; }
+.qq-preview .song { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qq-preview .artist { color: var(--muted); max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2);
   color: var(--ink); font: 600 14px var(--sans); padding: 10px 16px; cursor: pointer;

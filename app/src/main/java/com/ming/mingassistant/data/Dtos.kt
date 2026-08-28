@@ -74,6 +74,33 @@ data class Song(
     val createdAt: String,
 )
 
+// ---- QQ Music ----
+@Serializable
+data class QqPlaylistRequest(
+    val url: String,
+)
+
+@Serializable
+data class QqTrack(
+    val title: String,
+    val artist: String = "",
+)
+
+@Serializable
+data class QqPreview(
+    val title: String,
+    val total: Int,
+    val duplicate: Int,
+    val tracks: List<QqTrack> = emptyList(),
+)
+
+@Serializable
+data class QqImportResult(
+    val imported: Int,
+    val skipped: Int,
+    val title: String,
+)
+
 // ---- Error ----
 @Serializable
 data class ApiError(val message: String? = null)

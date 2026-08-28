@@ -15,12 +15,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ming.mingassistant.data.QqPreview
 import com.ming.mingassistant.data.Song
 
 @Composable
@@ -43,6 +46,7 @@ fun SongsScreen(factory: androidx.lifecycle.ViewModelProvider.Factory) {
     val vm: SongsViewModel = viewModel(factory = factory)
     val state by vm.uiState.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
+    var showQqDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         floatingActionButton = {
@@ -60,7 +64,16 @@ fun SongsScreen(factory: androidx.lifecycle.ViewModelProvider.Factory) {
                 .padding(horizontal = 16.dp),
         ) {
             Spacer(Modifier.height(4.dp))
-            Text("直播歌单", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("直播歌单", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.weight(1f))
+                OutlinedButton(onClick = { showQqDialog = true }) {
+                    Text("从QQ音乐导入")
+                }
+            }
             Text(
                 "直播时播放的歌曲列表",
                 style = MaterialTheme.typography.bodyMedium,
@@ -98,6 +111,21 @@ fun SongsScreen(factory: androidx.lifecycle.ViewModelProvider.Factory) {
             onConfirm = { title, artist, note ->
                 vm.add(title, artist, note) { error ->
                     if (error == null) showAddDialog = false
+                }
+            },
+        )
+    }
+
+    if (showQqDialog) {
+        QqImportDialog(
+            busy = state.qqBusy,
+            error = state.qqError,
+            preview = state.qqPreview,
+            onDismiss = { showQqDialog = false },
+            onQuery = { url -> vm.queryQq(url) },
+            onImport = { url ->
+                vm.importQq(url) { ok ->
+                    if (ok) showQqDialog = false
                 }
             },
         )
@@ -172,6 +200,67 @@ private fun AddSongDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss, enabled = !submitting) { Text("取消") }
+        },
+    )
+}
+
+@Composable
+private fun QqImportDialog(
+    busy: Boolean,
+    error: String?,
+    preview: QqPreview?,
+    onDismiss: () -> Unit,
+    onQuery: (String) -> Unit,
+    onImport: (String) -> Unit,
+) {
+    var url by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("从QQ音乐导入歌单") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = url,
+                    onValueChange = { url = it },
+                    label = { Text("QQ音乐歌单链接或歌单ID") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                error?.let {
+                    Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                }
+                preview?.let { p ->
+                    Text(
+                        buildString {
+                            append("歌单《${p.title}》共 ${p.total} 首，本次获取 ${p.tracks.size} 首")
+                            if (p.duplicate > 0) append("（${p.duplicate} 首已在歌单，导入时自动跳过）")
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        p.tracks.take(5).joinToString("\n") { "${it.title} - ${it.artist}" },
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 5,
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onImport(url) },
+                enabled = preview != null && !busy,
+            ) { Text("导入全部") }
+        },
+        dismissButton = {
+            Row {
+                TextButton(
+                    onClick = { onQuery(url) },
+                    enabled = url.isNotBlank() && !busy,
+                ) { Text("查询歌单") }
+                TextButton(onClick = onDismiss, enabled = !busy) { Text("取消") }
+            }
         },
     )
 }

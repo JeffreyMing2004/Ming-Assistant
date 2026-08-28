@@ -171,13 +171,6 @@ fun ProfileScreen(
             ProfileAccountCard(session, avatarUrl = vm.avatarUrl)
             Spacer(Modifier.height(20.dp))
 
-            LegalDocumentsCard(
-                onOpenUserAgreement = { docStack.add(userAgreementPage) },
-                onOpenPrivacyPolicy = { docStack.add(privacyPolicyPage) },
-                onOpenCompliance = { docStack.add(compliancePage) },
-            )
-            Spacer(Modifier.height(24.dp))
-
             ProfileActionButtons(
                 onLogout = { showLogoutDialog = true },
                 onDelete = { showDeleteDialog = true },
@@ -189,6 +182,16 @@ fun ProfileScreen(
         }
     }
 
+    if (showSettings) {
+        SettingsScreen(
+            currentUid = session.bilibiliUid,
+            vm = vm,
+            onOpenDoc = { docStack.add(it) },
+            onBack = { showSettings = false },
+        )
+    }
+
+    // 文档查看器排在最后：从设置页打开文档时需盖在设置页之上
     if (docStack.isNotEmpty()) {
         DocumentViewerScreen(
             page = docStack.last(),
@@ -196,14 +199,6 @@ fun ProfileScreen(
                 if (docStack.size > 1) docStack.removeLast() else docStack.clear()
             },
             onOpenDoc = { docStack.add(it) },
-        )
-    }
-
-    if (showSettings) {
-        SettingsScreen(
-            currentUid = session.bilibiliUid,
-            vm = vm,
-            onBack = { showSettings = false },
         )
     }
 
@@ -444,6 +439,7 @@ private fun ProfileStatusNotice() {
 private fun SettingsScreen(
     currentUid: String,
     vm: ProfileViewModel,
+    onOpenDoc: (DocPage) -> Unit,
     onBack: () -> Unit,
 ) {
     var uid by remember(currentUid) { mutableStateOf(currentUid) }
@@ -552,56 +548,38 @@ private fun SettingsScreen(
                         ProfileStatusNotice()
                     }
                 }
+                Spacer(Modifier.height(20.dp))
+                Card(
+                    Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = CardWhite),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                ) {
+                    Column(Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+                        Text("法律与隐私", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
+                        LegalDocumentItem(
+                            icon = DocumentIcon,
+                            title = "用户协议",
+                            onClick = { onOpenDoc(userAgreementPage) },
+                        )
+                        HorizontalDivider(color = DividerVeryLight)
+                        LegalDocumentItem(
+                            icon = ShieldIcon,
+                            title = "隐私政策",
+                            subtitle = "含隐私设置、账号注销等",
+                            onClick = { onOpenDoc(privacyPolicyPage) },
+                        )
+                        HorizontalDivider(color = DividerVeryLight)
+                        LegalDocumentItem(
+                            icon = DocumentIcon,
+                            title = "关于与全部合规文件",
+                            subtitle = "个人信息收集清单、第三方SDK清单、权限使用说明、第三方信息共享清单",
+                            onClick = { onOpenDoc(compliancePage) },
+                        )
+                    }
+                }
                 Spacer(Modifier.height(32.dp))
             }
-        }
-    }
-}
-
-@Composable
-private fun LegalDocumentsCard(
-    onOpenUserAgreement: () -> Unit,
-    onOpenPrivacyPolicy: () -> Unit,
-    onOpenCompliance: () -> Unit,
-) {
-    Card(
-        Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = CardWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-    ) {
-        Column(Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(DocumentIcon, contentDescription = null, tint = AccentPurple, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    "合同与法律文件",
-                    style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary,
-                )
-            }
-            Spacer(Modifier.height(8.dp))
-
-            LegalDocumentItem(
-                icon = DocumentIcon,
-                title = "用户协议",
-                onClick = onOpenUserAgreement,
-            )
-            HorizontalDivider(color = DividerVeryLight)
-            LegalDocumentItem(
-                icon = ShieldIcon,
-                title = "隐私政策",
-                subtitle = "含隐私设置、账号注销等",
-                onClick = onOpenPrivacyPolicy,
-            )
-            HorizontalDivider(color = DividerVeryLight)
-            LegalDocumentItem(
-                icon = DocumentIcon,
-                title = "关于与全部合规文件",
-                subtitle = "个人信息收集清单、第三方SDK清单、权限使用说明、第三方信息共享清单",
-                onClick = onOpenCompliance,
-            )
         }
     }
 }

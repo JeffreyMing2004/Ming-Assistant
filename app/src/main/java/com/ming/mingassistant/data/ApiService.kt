@@ -34,6 +34,15 @@ interface ApiService {
     @GET("api/live/status")
     suspend fun liveStatus(): LiveStatus
 
+    // ---- Announcement & Version ----
+    /** 首页公告（公开）。 */
+    @GET("api/announcement")
+    suspend fun announcement(): AnnouncementResponse
+
+    /** 在线版本检测（公开）。 */
+    @GET("api/app/version")
+    suspend fun appVersion(): AppVersionResponse
+
     // ---- Gifts ----
     @GET("api/gifts")
     suspend fun gifts(): List<GiftRecord>

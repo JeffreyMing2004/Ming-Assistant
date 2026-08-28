@@ -54,6 +54,13 @@ morph-icon { display: inline-flex; align-items: center; justify-content: center;
   transition: border-color .15s ease;
 }
 .field input:focus { border-color: var(--accent); }
+textarea {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+  color: var(--ink); padding: 10px 12px; font: inherit; font-size: 14px; outline: none;
+  width: 100%; box-sizing: border-box; resize: vertical; min-height: 120px;
+  transition: border-color .15s ease;
+}
+textarea:focus { border-color: var(--accent); }
 .legal { text-align: center; font-size: 12px; color: var(--muted); }
 .legal a { color: var(--muted); text-decoration: none; }
 .legal a:hover { color: var(--accent); }

@@ -252,9 +252,11 @@ function enterApp() {
   refreshMe();
   applyGiftGate();
   applySongGate();
+  applyAnnounceGate();
   loadLive();
   loadGifts();
   loadSongs();
+  loadAnnounce();
 }
 
 function applySongGate() {
@@ -311,6 +313,63 @@ document.querySelectorAll(".tab").forEach((t) =>
     );
   }),
 );
+
+/* ---------------- 公告 ---------------- */
+
+function applyAnnounceGate() {
+  const area = $("#announce-text");
+  const btn = $("#announce-save");
+  const editing = isAdmin();
+  if (area) {
+    area.disabled = !editing;
+    area.classList.toggle("disabled", !editing);
+  }
+  if (btn) {
+    btn.disabled = !editing;
+    btn.classList.toggle("disabled", !editing);
+  }
+  const warn = $("#announce-warn");
+  if (warn) {
+    warn.textContent = "仅站长后台管理员可编辑公告，其他账号只读。";
+    warn.classList.toggle("hidden", editing);
+  }
+}
+
+async function loadAnnounce() {
+  const status = $("#announce-status");
+  try {
+    const r = await api("/announcement");
+    $("#announce-text").value = (r && r.text) || "";
+    status.textContent = r && r.updatedAt ? `更新于 ${fmtTime(r.updatedAt)}` : "暂无";
+    $("#announce-saved-hint").textContent = "";
+  } catch (e) {
+    status.textContent = "加载失败";
+  }
+}
+
+$("#announce-save").addEventListener("click", async () => {
+  if (!isAdmin()) {
+    toast("仅站长可编辑公告");
+    return;
+  }
+  const btn = $("#announce-save");
+  btn.disabled = true;
+  const hint = $("#announce-saved-hint");
+  hint.textContent = "";
+  try {
+    const r = await api("/announcement", {
+      method: "PUT",
+      body: { text: ($("#announce-text").value || "").trim() },
+    });
+    hint.textContent = r && r.text ? "已发布，App 首页已更新" : "公告已清空";
+    toast(r && r.text ? "公告已发布" : "公告已清空");
+    loadAnnounce().catch(() => {});
+  } catch (e) {
+    toast(e && e.message ? e.message : "保存失败");
+  } finally {
+    applyAnnounceGate();
+  }
+});
 
 /* ---------------- 直播状态 ---------------- */
 

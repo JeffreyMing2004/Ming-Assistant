@@ -35,3 +35,9 @@ app:
     # 后启用；未配置时管理端登录不校验验证码（开发模式）
     captcha-id: ${MING_GT4_CAPTCHA_ID:}
     captcha-key: ${MING_GT4_CAPTCHA_KEY:}
+  release:
+    # App 在线版本检测：发布新版本时更新以下配置即可，无需改代码
+    latest-version: ${MING_LATEST_VERSION:1.1}
+    latest-code: ${MING_LATEST_CODE:2}
+    apk-url: ${MING_LATEST_APK_URL:}
+    update-note: ${MING_LATEST_NOTE:}

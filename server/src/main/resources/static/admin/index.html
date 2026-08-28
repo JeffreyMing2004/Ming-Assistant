@@ -38,7 +38,7 @@
   }, 4000);
 })();
 </script>
-<script type="module" src="./app.js?v=20260828-3"></script>
+<script type="module" src="./app.js?v=20260828-4"></script>
 </head>
 <body>
 
@@ -76,6 +76,7 @@
         <button class="tab active" data-tab="live"><morph-icon data-icon="activity" data-size="17"></morph-icon>直播状态</button>
         <button class="tab" data-tab="gifts"><morph-icon data-icon="gift" data-size="17"></morph-icon>舰礼</button>
         <button class="tab" data-tab="songs"><morph-icon data-icon="music" data-size="17"></morph-icon>歌单</button>
+        <button class="tab" data-tab="announce"><morph-icon data-icon="zap" data-size="17"></morph-icon>公告</button>
       </div>
       <div class="who">
         <span class="who-name" id="who-name"></span>
@@ -153,6 +154,26 @@
             </table>
           </div>
           <p class="empty hidden" id="song-empty">暂无歌曲，点击右上角新增。</p>
+        </div>
+      </section>
+
+      <!-- 公告 -->
+      <section id="sec-announce" class="section">
+        <div class="card">
+          <div class="card-head">
+            <h2>今日公告</h2>
+            <span class="count" id="announce-status"></span>
+            <span class="grow"></span>
+          </div>
+          <p class="hint warn hidden" id="announce-warn"></p>
+          <p class="hint">公告将展示在 App 首页顶部，用于通知「今日是否开播」等信息。留空保存即清空公告。</p>
+          <textarea id="announce-text" rows="6" placeholder="例如：今晚 20:00 照常开播，欢迎来直播间玩～"></textarea>
+          <div class="row-line">
+            <span class="hint ok" id="announce-saved-hint" style="flex:1"></span>
+            <button class="btn primary sm" id="announce-save">
+              <morph-icon data-icon="check" data-size="16"></morph-icon>保存公告
+            </button>
+          </div>
         </div>
       </section>
 

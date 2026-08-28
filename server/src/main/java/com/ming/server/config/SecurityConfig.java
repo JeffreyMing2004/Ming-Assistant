@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -29,8 +30,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/announcement").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/admin/login", "/api/live/status", "/api/app/config",
-                                "/api/bilibili/avatar").permitAll()
+                                "/api/app/version", "/api/bilibili/avatar").permitAll()
                         .requestMatchers(
                                 "/", "/index.html", "/favicon.ico",
                                 "/admin", "/admin/**", "/morphicons/**",

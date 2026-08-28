@@ -37,6 +37,23 @@ data class AvatarResponse(
     val face: String = "",
 )
 
+// ---- Announcement & Version ----
+/** 首页公告。text 为空串表示暂无公告。 */
+@Serializable
+data class AnnouncementResponse(
+    val text: String = "",
+    val updatedAt: String? = null,
+)
+
+/** App 在线版本信息（服务端配置返回）。 */
+@Serializable
+data class AppVersionResponse(
+    val latestVersion: String = "",
+    val latestCode: Int = 0,
+    val apkUrl: String = "",
+    val updateNote: String = "",
+)
+
 // ---- Live ----
 @Serializable
 data class LiveStatus(

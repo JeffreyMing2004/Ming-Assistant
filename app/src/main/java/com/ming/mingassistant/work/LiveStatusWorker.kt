@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.first
 
 /**
- * 周期轮询明鸽子的直播状态，从未开播变为开播时发送系统通知。
+ * 周期轮询明明Uncle的直播状态，从未开播变为开播时发送系统通知。
  * 周期下限为 15 分钟（WorkManager 系统限制），Doze 省电下并不严格准时。
  */
 class LiveStatusWorker(appContext: Context, params: WorkerParameters) :
@@ -51,7 +51,7 @@ class LiveStatusWorker(appContext: Context, params: WorkerParameters) :
 
         val notification = NotificationCompat.Builder(applicationContext, MingApplication.CHANNEL_LIVE)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("明鸽子 开播了！")
+            .setContentTitle("明明Uncle 开播了！")
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setContentIntent(pending)

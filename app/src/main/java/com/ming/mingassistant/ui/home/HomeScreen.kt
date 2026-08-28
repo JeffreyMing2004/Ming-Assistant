@@ -55,7 +55,7 @@ fun HomeScreen(factory: androidx.lifecycle.ViewModelProvider.Factory) {
     ) {
         Text("首页", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(
-            "明鸽子 直播状态",
+            "明明Uncle 直播状态",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

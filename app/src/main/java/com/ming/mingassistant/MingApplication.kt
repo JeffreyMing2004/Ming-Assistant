@@ -25,7 +25,7 @@ class MingApplication : Application() {
             CHANNEL_LIVE,
             "直播提醒",
             NotificationManager.IMPORTANCE_DEFAULT
-        ).apply { description = "明明Uncle 开播提醒" }
+        ).apply { description = "明鸽子 开播提醒" }
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
 

@@ -216,8 +216,10 @@ $("#live-refresh").addEventListener("click", async () => {
 /* ---------------- 舰礼 ---------------- */
 
 const giftKinds = [
-  { k: "nickname", label: "昵称", ph: "如：明明Uncle", required: true, max: 50 },
+  { k: "nickname", label: "姓名", ph: "如：张三", required: true, max: 50 },
   { k: "bilibiliUid", label: "B站 UID", ph: "数字，可留空", required: false, pattern: "^[0-9]{1,20}$" },
+  { k: "phone", label: "联系电话", ph: "手机号", required: true, max: 20 },
+  { k: "address", label: "住址", ph: "收件地址", required: true, max: 255 },
   { k: "giftType", label: "礼物类型", ph: "如：舰长 / 提督 / 总督", required: true, max: 50 },
 ];
 
@@ -243,6 +245,8 @@ function giftRow(g) {
     td(g.id, "mono"),
     td(g.nickname),
     td(g.bilibiliUid || "—", "mono"),
+    td(g.phone || "—", "mono"),
+    td(g.address || "—"),
     (() => { const t = document.createElement("td"); const s = document.createElement("span"); s.className = "tag"; s.textContent = g.giftType; t.append(s); return t; })(),
     td(fmtTime(g.createdAt), "mono"),
     ops,
@@ -400,7 +404,6 @@ document.addEventListener("click", (e) => {
     openModal("新增舰礼登记", "gift", giftKinds);
   }
   if (a === "add-song") openModal("新增歌曲", "song", songKinds);
-  if (a === "qq-import") openQqModal();
 });
 
 function closeModal() {
@@ -433,106 +436,6 @@ modalForm.addEventListener("submit", async (e) => {
     const p = $("#modal-err");
     p.textContent = err.message;
     p.classList.remove("hidden");
-  } finally {
-    btn.disabled = false;
-  }
-});
-
-/* ---------------- 从QQ音乐导入歌单 ---------------- */
-
-const qqModal = $("#qq-modal");
-let qqUrl = "";
-
-function openQqModal() {
-  qqUrl = "";
-  $("#qq-url").value = "";
-  $("#qq-err").classList.add("hidden");
-  $("#qq-info").classList.add("hidden");
-  const pv = $("#qq-preview");
-  pv.classList.add("hidden");
-  pv.textContent = "";
-  $("#qq-import-btn").disabled = true;
-  qqModal.showModal();
-  setTimeout(() => $("#qq-url").focus(), 30);
-}
-
-$("#qq-close").addEventListener("click", () => qqModal.close());
-$("#qq-cancel").addEventListener("click", () => qqModal.close());
-qqModal.addEventListener("click", (e) => {
-  if (e.target === qqModal) qqModal.close();
-});
-
-async function doQqQuery() {
-  const url = $("#qq-url").value.trim();
-  const btn = $("#qq-query");
-  if (!url) return;
-  btn.disabled = true;
-  $("#qq-err").classList.add("hidden");
-  $("#qq-info").classList.add("hidden");
-  try {
-    const p = await api("/songs/qq/preview", { method: "POST", body: { url } });
-    qqUrl = url;
-    const dup = p.duplicate > 0 ? `，其中 ${p.duplicate} 首已在歌单（导入时自动跳过）` : "";
-    $("#qq-info").textContent = `歌单《${p.title}》共 ${p.total} 首，本次获取 ${p.tracks.length} 首${dup}。`;
-    $("#qq-info").classList.remove("hidden");
-    renderQqPreview(p.tracks);
-    $("#qq-import-btn").disabled = false;
-  } catch (err) {
-    const el = $("#qq-err");
-    el.textContent = err.message;
-    el.classList.remove("hidden");
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-function renderQqPreview(tracks) {
-  const box = $("#qq-preview");
-  box.textContent = "";
-  const ul = document.createElement("ul");
-  tracks.slice(0, 50).forEach((t, i) => {
-    const li = document.createElement("li");
-    const num = document.createElement("span");
-    num.className = "num";
-    num.textContent = i + 1;
-    const song = document.createElement("span");
-    song.className = "song";
-    song.textContent = t.title;
-    const artist = document.createElement("span");
-    artist.className = "artist";
-    artist.textContent = t.artist || "";
-    li.append(num, song, artist);
-    ul.append(li);
-  });
-  box.append(ul);
-  if (tracks.length > 50) {
-    const more = document.createElement("p");
-    more.className = "hint";
-    more.textContent = `还有 ${tracks.length - 50} 首未显示，导入时全部导入。`;
-    box.append(more);
-  }
-  box.classList.remove("hidden");
-}
-
-$("#qq-query").addEventListener("click", doQqQuery);
-
-$("#qq-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  if (!qqUrl) return doQqQuery();
-  const btn = $("#qq-import-btn");
-  btn.disabled = true;
-  try {
-    const r = await api("/songs/qq/import", { method: "POST", body: { url: qqUrl } });
-    qqModal.close();
-    const extra = r.skipped > 0 ? `，跳过 ${r.skipped} 首重复` : "";
-    toast(`已导入 ${r.imported} 首${extra}`);
-    const hb = document.querySelector('[data-action="qq-import"]');
-    hb && flash(hb.querySelector("morph-icon"), "check");
-    loadSongs().catch(() => {});
-  } catch (err) {
-    const el = $("#qq-err");
-    el.textContent = err.message;
-    el.classList.remove("hidden");
   } finally {
     btn.disabled = false;
   }

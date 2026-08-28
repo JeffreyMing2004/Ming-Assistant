@@ -33,10 +33,10 @@ class GiftsViewModel(private val repo: GiftRepository = GiftRepository()) : View
         }
     }
 
-    fun add(nickname: String, bilibiliUid: String, giftType: String, onDone: (String?) -> Unit) {
+    fun add(nickname: String, bilibiliUid: String, phone: String, address: String, giftType: String, onDone: (String?) -> Unit) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(submitting = true, error = null)
-            repo.create(nickname, bilibiliUid, giftType)
+            repo.create(nickname, bilibiliUid, phone, address, giftType)
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(submitting = false)
                     onDone(null)

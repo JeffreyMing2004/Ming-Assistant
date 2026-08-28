@@ -98,7 +98,7 @@ fun ProfileScreen(
 
         Spacer(Modifier.height(24.dp))
         Text(
-            "Ming-Assistant v1.0\n专门用于推送 明明Uncle 的开播状态、管理直播歌单与舰礼登记。\n开发者：个人开发者　联系邮箱：1640053235@qq.com",
+            "Ming-Assistant v1.0\n专门用于推送 明鸽子 的开播状态、管理直播歌单与舰礼登记。\n开发者：个人开发者　联系邮箱：1640053235@qq.com",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

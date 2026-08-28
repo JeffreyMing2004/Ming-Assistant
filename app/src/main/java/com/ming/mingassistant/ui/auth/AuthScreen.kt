@@ -45,12 +45,12 @@ fun AuthScreen(
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "明 明 助 手",
+            text = "明 鸽 子",
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary,
         )
         Text(
-            text = "明明Uncle 直播 / 舰礼助手",
+            text = "明鸽子 直播 / 舰礼助手",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

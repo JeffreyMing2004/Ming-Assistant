@@ -43,6 +43,8 @@ data class LiveStatus(
 data class GiftRequest(
     val nickname: String,
     val bilibiliUid: String = "",
+    val phone: String = "",
+    val address: String = "",
     val giftType: String,
 )
 
@@ -52,6 +54,8 @@ data class GiftRecord(
     val userId: Long,
     val nickname: String,
     val bilibiliUid: String = "",
+    val phone: String = "",
+    val address: String = "",
     val giftType: String,
     val createdAt: String,
 )
@@ -72,33 +76,6 @@ data class Song(
     val artist: String = "",
     val note: String = "",
     val createdAt: String,
-)
-
-// ---- QQ Music ----
-@Serializable
-data class QqPlaylistRequest(
-    val url: String,
-)
-
-@Serializable
-data class QqTrack(
-    val title: String,
-    val artist: String = "",
-)
-
-@Serializable
-data class QqPreview(
-    val title: String,
-    val total: Int,
-    val duplicate: Int,
-    val tracks: List<QqTrack> = emptyList(),
-)
-
-@Serializable
-data class QqImportResult(
-    val imported: Int,
-    val skipped: Int,
-    val title: String,
 )
 
 // ---- Error ----

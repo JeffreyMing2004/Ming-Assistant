@@ -19,3 +19,9 @@ app:
     expiration-hours: 168
   bilibili:
     uid: 342163344
+  qq:
+    # QQ音乐歌单后台自动同步：定期抓取歌单并与数据库对比，缺失的歌曲自动加入歌单
+    sync-enabled: ${MING_QQ_SYNC_ENABLED:true}
+    playlist: ${MING_QQ_PLAYLIST:9770556958}
+    owner-username: ${MING_QQ_OWNER:testuser}
+    sync-interval-ms: ${MING_QQ_SYNC_INTERVAL_MS:1800000}

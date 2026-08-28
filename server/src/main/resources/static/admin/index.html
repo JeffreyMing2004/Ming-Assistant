@@ -90,7 +90,7 @@
           <p class="hint warn hidden" id="gift-warn"></p>
           <div class="table-wrap">
             <table class="grid">
-              <thead><tr><th>ID</th><th>昵称</th><th>B站 UID</th><th>礼物类型</th><th>登记时间</th><th class="ops">操作</th></tr></thead>
+              <thead><tr><th>ID</th><th>姓名</th><th>B站 UID</th><th>联系电话</th><th>住址</th><th>礼物类型</th><th>登记时间</th><th class="ops">操作</th></tr></thead>
               <tbody id="gift-tbody"></tbody>
             </table>
           </div>
@@ -105,9 +105,6 @@
             <h2>歌单</h2>
             <span class="count" id="song-count"></span>
             <span class="grow"></span>
-            <button class="btn sm" data-action="qq-import" title="从QQ音乐歌单批量导入">
-              <morph-icon data-icon="cloud" data-size="16"></morph-icon>导入QQ音乐
-            </button>
             <button class="btn primary sm" data-action="add-song">
               <morph-icon data-icon="plus" data-size="16"></morph-icon>新增歌曲
             </button>
@@ -137,31 +134,6 @@
       <div class="modal-actions">
         <button type="button" class="btn ghost" id="modal-cancel">取消</button>
         <button type="submit" class="btn primary" id="modal-save"><morph-icon data-icon="check" data-size="16"></morph-icon>保存</button>
-      </div>
-    </form>
-  </dialog>
-
-  <!-- 从QQ音乐导入歌单 -->
-  <dialog id="qq-modal">
-    <form id="qq-form" novalidate>
-      <div class="modal-head">
-        <h3>从QQ音乐导入歌单</h3>
-        <button type="button" class="btn ghost sm" id="qq-close"><morph-icon data-icon="x" data-size="16"></morph-icon></button>
-      </div>
-      <div class="modal-body">
-        <label class="field">QQ音乐歌单链接或歌单ID
-          <input id="qq-url" placeholder="https://y.qq.com/n/ryqq/playlist/7144547508" required>
-        </label>
-        <p class="err hidden" id="qq-err"></p>
-        <p class="hint hidden" id="qq-info"></p>
-        <div class="qq-preview hidden" id="qq-preview"></div>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn ghost" id="qq-cancel">取消</button>
-        <button type="button" class="btn ghost" id="qq-query"><morph-icon data-icon="search" data-size="16"></morph-icon>查询歌单</button>
-        <button type="submit" class="btn primary" id="qq-import-btn" disabled>
-          <morph-icon data-icon="cloud" data-size="16"></morph-icon>导入全部
-        </button>
       </div>
     </form>
   </dialog>

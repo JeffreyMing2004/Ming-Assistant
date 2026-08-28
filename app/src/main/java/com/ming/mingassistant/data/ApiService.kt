@@ -44,10 +44,4 @@ interface ApiService {
 
     @DELETE("api/songs/{id}")
     suspend fun deleteSong(@Path("id") id: Long)
-
-    @POST("api/songs/qq/preview")
-    suspend fun qqPreview(@Body body: QqPlaylistRequest): QqPreview
-
-    @POST("api/songs/qq/import")
-    suspend fun qqImport(@Body body: QqPlaylistRequest): QqImportResult
 }

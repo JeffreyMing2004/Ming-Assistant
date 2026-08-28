@@ -27,6 +27,8 @@ public class GiftService {
         record.setUserId(userId);
         record.setNickname(req.getNickname());
         record.setBilibiliUid(req.getBilibiliUid());
+        record.setPhone(req.getPhone());
+        record.setAddress(req.getAddress());
         record.setGiftType(req.getGiftType());
         return giftRepository.save(record);
     }

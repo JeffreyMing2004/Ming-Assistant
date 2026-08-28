@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -128,8 +130,8 @@ fun GiftsScreen(
         AddGiftDialog(
             submitting = state.submitting,
             onDismiss = { showAddDialog = false },
-            onConfirm = { nickname, uid, type ->
-                vm.add(nickname, uid, type) { error ->
+            onConfirm = { name, uid, phone, address, type ->
+                vm.add(name, uid, phone, address, type) { error ->
                     if (error == null) showAddDialog = false
                 }
             },
@@ -161,6 +163,20 @@ private fun GiftRow(gift: GiftRecord, onDelete: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                gift.phone.takeIf { it.isNotBlank() }?.let {
+                    Text(
+                        "联系电话 $it",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                gift.address.takeIf { it.isNotBlank() }?.let {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
             IconButton(onClick = onDelete) {
                 Icon(Icons.Filled.Delete, contentDescription = "删除", tint = MaterialTheme.colorScheme.error)
@@ -173,21 +189,26 @@ private fun GiftRow(gift: GiftRecord, onDelete: () -> Unit) {
 private fun AddGiftDialog(
     submitting: Boolean,
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String) -> Unit,
+    onConfirm: (String, String, String, String, String) -> Unit,
 ) {
-    var nickname by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
     var uid by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
     var giftType by remember { mutableStateOf("舰长") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("登记舰礼") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 OutlinedTextField(
-                    value = nickname,
-                    onValueChange = { nickname = it },
-                    label = { Text("用户名 / 昵称 *") },
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("姓名 *") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -197,6 +218,20 @@ private fun AddGiftDialog(
                     label = { Text("B站UID（可选）") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    label = { Text("联系电话 *") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = { address = it },
+                    label = { Text("住址 *") },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 OutlinedTextField(
@@ -211,11 +246,11 @@ private fun AddGiftDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (nickname.isNotBlank() && giftType.isNotBlank()) {
-                        onConfirm(nickname.trim(), uid.trim(), giftType.trim())
+                    if (name.isNotBlank() && phone.isNotBlank() && address.isNotBlank() && giftType.isNotBlank()) {
+                        onConfirm(name.trim(), uid.trim(), phone.trim(), address.trim(), giftType.trim())
                     }
                 },
-                enabled = nickname.isNotBlank() && giftType.isNotBlank() && !submitting,
+                enabled = name.isNotBlank() && phone.isNotBlank() && address.isNotBlank() && giftType.isNotBlank() && !submitting,
             ) { Text("保存") }
         },
         dismissButton = {

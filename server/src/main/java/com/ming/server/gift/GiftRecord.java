@@ -32,6 +32,12 @@ public class GiftRecord {
     @Column(name = "bilibili_uid", length = 32)
     private String bilibiliUid;
 
+    @Column(name = "phone", nullable = false, length = 20)
+    private String phone;
+
+    @Column(nullable = false, length = 255)
+    private String address;
+
     @Column(name = "gift_type", nullable = false, length = 50)
     private String giftType;
 

@@ -9,10 +9,4 @@ class SongRepository(
         ApiCall.call { api.createSong(SongRequest(title, artist, note)) }
 
     suspend fun delete(id: Long): Result<Unit> = ApiCall.call { api.deleteSong(id) }
-
-    suspend fun qqPreview(url: String): Result<QqPreview> =
-        ApiCall.call { api.qqPreview(QqPlaylistRequest(url)) }
-
-    suspend fun qqImport(url: String): Result<QqImportResult> =
-        ApiCall.call { api.qqImport(QqPlaylistRequest(url)) }
 }

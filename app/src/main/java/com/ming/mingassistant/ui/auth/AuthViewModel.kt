@@ -37,8 +37,7 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
     fun submit(onSuccess: () -> Unit) {
         val s = _uiState.value
         val localError = when {
-            s.isRegister && s.bilibiliUid.isBlank() -> "请输入B站UID"
-            s.isRegister && !s.bilibiliUid.all { it.isDigit() } -> "B站UID必须为数字"
+            s.isRegister && s.bilibiliUid.isNotBlank() && !s.bilibiliUid.all { it.isDigit() } -> "B站UID必须为数字"
             s.username.isBlank() -> "请输入用户名"
             s.password.length < 6 -> "密码至少6位"
             s.isRegister && s.password != s.confirmPassword -> "两次输入的密码不一致"

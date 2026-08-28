@@ -110,7 +110,7 @@ $("#login-form").addEventListener("submit", async (e) => {
       body: { username: fd.get("username"), password: fd.get("password") },
     });
     token = res.token;
-    user = { userId: res.userId, username: res.username };
+    user = { userId: res.userId, username: res.username, bilibiliUid: res.bilibiliUid || "" };
     localStorage.setItem("ma_token", token);
     localStorage.setItem("ma_user", JSON.stringify(user));
     $("#login-err").classList.add("hidden");
@@ -128,9 +128,40 @@ function enterApp() {
   $("#login-view").classList.add("hidden");
   $("#app-view").classList.remove("hidden");
   $("#who-name").textContent = (user && user.username) || "";
+  refreshMe();
+  applyGiftGate();
   loadLive();
   loadGifts();
   loadSongs();
+}
+
+/* 从服务器同步账号信息（B站UID 等），并据此启闭“新增舰礼”能力 */
+async function refreshMe() {
+  try {
+    const me = await api("/auth/me");
+    if (me && me.bilibiliUid != null) {
+      user = { userId: me.userId, username: me.username, bilibiliUid: me.bilibiliUid || "" };
+      localStorage.setItem("ma_user", JSON.stringify(user));
+      $("#who-name").textContent = user.username || "";
+      applyGiftGate();
+    }
+  } catch (e) {
+    if (e && e.message.includes("登录")) return;
+  }
+}
+
+function applyGiftGate() {
+  const blank = !user || !user.bilibiliUid;
+  const btn = document.querySelector('[data-action="add-gift"]');
+  const warn = document.getElementById("gift-warn");
+  if (btn) {
+    btn.disabled = blank;
+    btn.classList.toggle("disabled", blank);
+  }
+  if (warn) {
+    warn.textContent = "当前账号注册时未填写本人B站UID，无法登记舰礼。";
+    warn.classList.toggle("hidden", !blank);
+  }
 }
 
 $("#logout").addEventListener("click", () => logout());
@@ -361,7 +392,13 @@ document.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-action]");
   if (!btn || !modal.open) return;
   const a = btn.dataset.action;
-  if (a === "add-gift") openModal("新增舰礼登记", "gift", giftKinds);
+  if (a === "add-gift") {
+    if (!user || !user.bilibiliUid) {
+      toast("当前账号未填写本人B站UID，无法登记舰礼");
+      return;
+    }
+    openModal("新增舰礼登记", "gift", giftKinds);
+  }
   if (a === "add-song") openModal("新增歌曲", "song", songKinds);
 });
 

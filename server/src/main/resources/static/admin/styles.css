@@ -102,6 +102,9 @@ morph-icon { display: inline-flex; align-items: center; justify-content: center;
   border-radius: 18px; padding: 22px; margin-bottom: 18px;
 }
 .hint { color: var(--muted); font-size: 12.5px; margin-top: -6px; }
+.hint.warn { color: var(--red); margin: -4px 0 12px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn:disabled:hover { border-color: var(--line); }
 
 /* 直播卡片 */
 .live-card { display: flex; gap: 22px; align-items: center; }

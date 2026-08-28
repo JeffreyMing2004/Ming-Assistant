@@ -40,18 +40,24 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ming.mingassistant.data.GiftRecord
 
 @Composable
-fun GiftsScreen(factory: androidx.lifecycle.ViewModelProvider.Factory) {
+fun GiftsScreen(
+    factory: androidx.lifecycle.ViewModelProvider.Factory,
+    ownUid: String,
+) {
     val vm: GiftsViewModel = viewModel(factory = factory)
     val state by vm.uiState.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
+    val canAddGift = ownUid.isNotBlank()
 
     Scaffold(
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { showAddDialog = true },
-                icon = { Icon(Icons.Filled.Add, contentDescription = "登记") },
-                text = { Text("登记舰礼") },
-            )
+            if (canAddGift) {
+                ExtendedFloatingActionButton(
+                    onClick = { showAddDialog = true },
+                    icon = { Icon(Icons.Filled.Add, contentDescription = "登记") },
+                    text = { Text("登记舰礼") },
+                )
+            }
         },
     ) { padding ->
         Column(
@@ -68,6 +74,23 @@ fun GiftsScreen(factory: androidx.lifecycle.ViewModelProvider.Factory) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(12.dp))
+
+            if (!canAddGift) {
+                Card(
+                    Modifier.fillMaxWidth(),
+                    colors = androidx.compose.material3.CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                    ),
+                ) {
+                    Text(
+                        "无法登记舰礼：您注册时未填写本人B站UID。\n请使用填写了B站UID的账号重新注册后再登记舰礼。",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(16.dp),
+                    )
+                }
+                Spacer(Modifier.height(12.dp))
+            }
 
             if (state.gifts.isNotEmpty()) {
                 Text(

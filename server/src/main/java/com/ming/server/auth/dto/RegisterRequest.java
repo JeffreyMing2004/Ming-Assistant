@@ -8,8 +8,7 @@ import lombok.Data;
 @Data
 public class RegisterRequest {
 
-    @NotBlank(message = "B站UID不能为空")
-    @Pattern(regexp = "\\d{1,20}", message = "B站UID必须为数字")
+    @Pattern(regexp = "\\d{0,20}", message = "B站UID必须为数字")
     private String bilibiliUid;
 
     @NotBlank(message = "用户名不能为空")

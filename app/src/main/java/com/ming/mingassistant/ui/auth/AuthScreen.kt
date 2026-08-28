@@ -60,7 +60,7 @@ fun AuthScreen(
             OutlinedTextField(
                 value = state.bilibiliUid,
                 onValueChange = vm::onBilibiliUid,
-                label = { Text("B站UID") },
+                label = { Text("本人B站UID（选填）") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),

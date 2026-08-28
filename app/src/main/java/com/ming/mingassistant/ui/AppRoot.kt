@@ -125,7 +125,7 @@ private fun MainScaffold(
         ) {
             composable("home") { HomeScreen(factory = homeFactory) }
             composable("songs") { SongsScreen(factory = songsFactory) }
-            composable("gifts") { GiftsScreen(factory = giftsFactory) }
+            composable("gifts") { GiftsScreen(factory = giftsFactory, ownUid = session.bilibiliUid) }
             composable("profile") { ProfileScreen(session = session, factory = profileFactory) }
         }
     }

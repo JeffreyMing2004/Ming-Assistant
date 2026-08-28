@@ -10,8 +10,9 @@ const API = "/api";
 
 let token = localStorage.getItem("ma_token") || "";
 let user = JSON.parse(localStorage.getItem("ma_user") || "null");
-let ownerUsername = null;
-const isOwner = () => !!ownerUsername && !!user && user.username === ownerUsername;
+// 后台管理员身份：登录走独立的管理员账号表（/api/admin/login），
+// 凭据在 admin_users 表，与 App 用户表（users 表）完全分离。
+const isAdmin = () => !!token && !!user && !!user.admin;
 
 /* ---------------- 图标辅助 ---------------- */
 
@@ -107,12 +108,12 @@ $("#login-form").addEventListener("submit", async (e) => {
   const btn = $("#login-btn");
   btn.disabled = true;
   try {
-    const res = await api("/auth/login", {
+    const res = await api("/admin/login", {
       method: "POST",
       body: { username: fd.get("username"), password: fd.get("password") },
     });
     token = res.token;
-    user = { userId: res.userId, username: res.username, bilibiliUid: res.bilibiliUid || "" };
+    user = { username: res.username, name: res.name || res.username, admin: true };
     localStorage.setItem("ma_token", token);
     localStorage.setItem("ma_user", JSON.stringify(user));
     $("#login-err").classList.add("hidden");
@@ -129,48 +130,36 @@ $("#login-form").addEventListener("submit", async (e) => {
 function enterApp() {
   $("#login-view").classList.add("hidden");
   $("#app-view").classList.remove("hidden");
-  $("#who-name").textContent = (user && user.username) || "";
+  $("#who-name").textContent = (user && (user.name || user.username)) || "";
   refreshMe();
   applyGiftGate();
+  applySongGate();
   loadLive();
   loadGifts();
-  loadAppConfig().then(() => {
-    applySongGate();
-    loadSongs();
-  });
-}
-
-/* 读取后端基础配置（歌单站长账号名），用于歌单增删的权限门 */
-async function loadAppConfig() {
-  try {
-    const cfg = await api("/app/config");
-    ownerUsername = (cfg && cfg.ownerUsername) || null;
-  } catch (e) {
-    if (e && e.message.includes("登录")) return;
-  }
+  loadSongs();
 }
 
 function applySongGate() {
   const btn = document.querySelector('[data-action="add-song"]');
   if (btn) {
-    btn.disabled = !isOwner();
-    btn.classList.toggle("disabled", !isOwner());
+    btn.disabled = !isAdmin();
+    btn.classList.toggle("disabled", !isAdmin());
   }
   const warn = document.getElementById("song-warn");
   if (warn) {
-    warn.textContent = "仅站长账号可新增 / 删除歌曲，其他账号只读。";
-    warn.classList.toggle("hidden", isOwner());
+    warn.textContent = "仅站长后台管理员可新增 / 删除歌曲，其他账号只读。";
+    warn.classList.toggle("hidden", isAdmin());
   }
 }
 
-/* 从服务器同步账号信息（B站UID 等），并据此启闭“新增舰礼”能力 */
+/* 从服务器同步账号信息（B站UID 等），并据此启闭“新增舰礼”能力。
+   管理员 token 代行站长用户身份，/auth/me 返回站长用户的资料（含 B站 UID）。 */
 async function refreshMe() {
   try {
     const me = await api("/auth/me");
     if (me && me.bilibiliUid != null) {
-      user = { userId: me.userId, username: me.username, bilibiliUid: me.bilibiliUid || "" };
+      user = { ...(user || {}), userId: me.userId, bilibiliUid: me.bilibiliUid || "" };
       localStorage.setItem("ma_user", JSON.stringify(user));
-      $("#who-name").textContent = user.username || "";
       applyGiftGate();
     }
   } catch (e) {
@@ -306,7 +295,7 @@ function songRow(s) {
   tr.dataset.id = s.id;
   const ops = document.createElement("td");
   ops.className = "ops";
-  if (isOwner()) {
+  if (isAdmin()) {
     const del = document.createElement("button");
     del.className = "row-btn";
     del.title = "删除（再次点击确认）";
@@ -365,7 +354,7 @@ function bindDelete(tbody, kind) {
     const btn = e.target.closest(".row-btn");
     if (!btn) return;
     e.stopPropagation();
-    if (kind === "songs" && !isOwner()) {
+    if (kind === "songs" && !isAdmin()) {
       toast("仅站长可删除歌曲");
       return;
     }
@@ -438,7 +427,7 @@ document.addEventListener("click", (e) => {
     openModal("新增舰礼登记", "gift", giftKinds);
   }
   if (a === "add-song") {
-    if (!isOwner()) {
+    if (!isAdmin()) {
       toast("仅站长可新增歌曲");
       return;
     }

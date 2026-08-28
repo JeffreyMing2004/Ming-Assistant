@@ -25,3 +25,8 @@ app:
     playlist: ${MING_QQ_PLAYLIST:9770556958}
     owner-username: ${MING_QQ_OWNER:testuser}
     sync-interval-ms: ${MING_QQ_SYNC_INTERVAL_MS:1800000}
+  admin:
+    # 站长后台账号引导：配置 APP_ADMIN_USERNAME / APP_ADMIN_PASSWORD 环境变量即可
+    # 在启动时注册（不存在）或重置（已存在）admin_users 表中的管理员账号
+    bootstrap-username: ${APP_ADMIN_USERNAME:}
+    bootstrap-password: ${APP_ADMIN_PASSWORD:}

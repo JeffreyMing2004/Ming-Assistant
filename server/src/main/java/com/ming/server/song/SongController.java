@@ -24,7 +24,7 @@ public class SongController {
     @PostMapping
     public Song create(@AuthenticationPrincipal AppPrincipal principal,
                        @Valid @RequestBody SongRequest request) {
-        return songService.create(principal.userId(), request);
+        return songService.create(principal.isAdmin(), request);
     }
 
     @GetMapping
@@ -34,6 +34,6 @@ public class SongController {
 
     @DeleteMapping("/{id}")
     public void delete(@AuthenticationPrincipal AppPrincipal principal, @PathVariable Long id) {
-        songService.delete(principal.userId(), id);
+        songService.delete(principal.isAdmin(), id);
     }
 }

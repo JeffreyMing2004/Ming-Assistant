@@ -40,7 +40,7 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
         userRepository.save(user);
 
-        return AuthResponse.from(user, jwtService.generate(user));
+        return AuthResponse.from(user, jwtService.generate(user.getId(), user.getUsername()));
     }
 
     public AuthResponse login(LoginRequest req) {
@@ -49,7 +49,7 @@ public class AuthService {
         if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
             throw ApiException.unauthorized("用户名或密码错误");
         }
-        return AuthResponse.from(user, jwtService.generate(user));
+        return AuthResponse.from(user, jwtService.generate(user.getId(), user.getUsername()));
     }
 
     public AuthResponse me(Long userId) {

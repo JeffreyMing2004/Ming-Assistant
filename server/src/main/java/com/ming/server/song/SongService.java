@@ -22,11 +22,11 @@ public class SongService {
 
     /**
      * 直播歌单 = 站长（owner）提供的歌单，对所有登录用户共享展示。
-     * 新增 / 删除仅站长可操作，其他人只读。
+     * 新增 / 删除仅站长后台管理员可操作，其他人只读。
      */
     @Transactional
-    public Song create(Long userId, SongRequest req) {
-        requireOwner(userId);
+    public Song create(boolean isAdmin, SongRequest req) {
+        requireAdmin(isAdmin);
         Song song = new Song();
         song.setUserId(ownerId());
         song.setTitle(req.getTitle());
@@ -40,17 +40,17 @@ public class SongService {
     }
 
     @Transactional
-    public void delete(Long userId, Long id) {
-        requireOwner(userId);
+    public void delete(boolean isAdmin, Long id) {
+        requireAdmin(isAdmin);
         if (!songRepository.existsByIdAndUserId(id, ownerId())) {
             throw ApiException.notFound("歌单记录不存在");
         }
         songRepository.deleteById(id);
     }
 
-    private void requireOwner(Long userId) {
-        if (!ownerId().equals(userId)) {
-            throw ApiException.forbidden("只有站长可以管理直播歌单，其他账号仅可查看");
+    private void requireAdmin(boolean isAdmin) {
+        if (!isAdmin) {
+            throw ApiException.forbidden("只有站长（后台管理员）可以管理直播歌单，其他账号仅可查看");
         }
     }
 

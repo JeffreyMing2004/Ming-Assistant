@@ -7,6 +7,8 @@ public interface GiftRepository extends JpaRepository<GiftRecord, Long> {
 
     List<GiftRecord> findByUserIdOrderByCreatedAtDesc(Long userId);
 
+    List<GiftRecord> findAllByOrderByCreatedAtDesc();
+
     boolean existsByIdAndUserId(Long id, Long userId);
 
     void deleteByUserId(Long userId);

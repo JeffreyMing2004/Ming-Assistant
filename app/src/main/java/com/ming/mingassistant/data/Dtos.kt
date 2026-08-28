@@ -57,6 +57,7 @@ data class GiftRecord(
     val phone: String = "",
     val address: String = "",
     val giftType: String,
+    val trackingNumber: String = "",
     val createdAt: String,
 )
 

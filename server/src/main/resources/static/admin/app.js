@@ -118,10 +118,12 @@ $("#login-form").addEventListener("submit", async (e) => {
     localStorage.setItem("ma_user", JSON.stringify(user));
     $("#login-err").classList.add("hidden");
     enterApp();
+    toast(`登录成功，欢迎回来，${user.name}`);
   } catch (err) {
     const p = $("#login-err");
     p.textContent = err.message;
     p.classList.remove("hidden");
+    toast(`登录失败：${err.message}`);
   } finally {
     btn.disabled = false;
   }
@@ -237,14 +239,20 @@ const giftKinds = [
   { k: "bilibiliUid", label: "B站 UID", ph: "数字，可留空", required: false, pattern: "^[0-9]{1,20}$" },
   { k: "phone", label: "联系电话", ph: "手机号", required: true, max: 20 },
   { k: "address", label: "住址", ph: "收件地址", required: true, max: 255 },
-  { k: "giftType", label: "礼物类型", ph: "如：舰长 / 提督 / 总督", required: true, max: 50 },
+  { k: "giftType", label: "大航海", options: ["舰长", "提督", "总督"], required: true },
 ];
 
 function giftRow(g) {
   const tr = document.createElement("tr");
   tr.dataset.id = g.id;
+  tr.dataset.tracking = g.trackingNumber || "";
   const ops = document.createElement("td");
   ops.className = "ops";
+  const track = document.createElement("button");
+  track.className = "row-btn track-btn";
+  track.title = g.trackingNumber ? "修改快递单号" : "登记快递单号";
+  track.append(mkIcon("edit-2", 16));
+  ops.append(track);
   const del = document.createElement("button");
   del.className = "row-btn";
   del.title = "删除（再次点击确认）";
@@ -257,14 +265,24 @@ function giftRow(g) {
     t.textContent = txt;
     return t;
   };
+  const tierTag = () => {
+    const t = document.createElement("td");
+    const s = document.createElement("span");
+    s.className = "tag";
+    s.textContent = g.giftType;
+    t.append(s);
+    return t;
+  };
 
   tr.append(
     td(g.id, "mono"),
+    td(g.username || "—"),
     td(g.nickname),
     td(g.bilibiliUid || "—", "mono"),
     td(g.phone || "—", "mono"),
     td(g.address || "—"),
-    (() => { const t = document.createElement("td"); const s = document.createElement("span"); s.className = "tag"; s.textContent = g.giftType; t.append(s); return t; })(),
+    tierTag(),
+    td(g.trackingNumber || "—", "mono"),
     td(fmtTime(g.createdAt), "mono"),
     ops,
   );
@@ -272,7 +290,7 @@ function giftRow(g) {
 }
 
 async function loadGifts() {
-  const list = await api("/gifts");
+  const list = await api("/admin/gifts");
   $("#gift-count").textContent = `${list.length} 条`;
   const tbody = $("#gift-tbody");
   tbody.textContent = "";
@@ -349,10 +367,11 @@ document.addEventListener("click", (e) => {
   if (!e.target.closest(".row-btn")) resetArmed();
 });
 
-function bindDelete(tbody, kind) {
+function bindDelete(tbody, kind, path) {
   tbody.addEventListener("click", async (e) => {
     const btn = e.target.closest(".row-btn");
     if (!btn) return;
+    if (e.target.closest(".track-btn")) return; // 快递单号按钮由独立事件处理
     e.stopPropagation();
     if (kind === "songs" && !isAdmin()) {
       toast("仅站长可删除歌曲");
@@ -364,7 +383,7 @@ function bindDelete(tbody, kind) {
       resetArmed();
       const ic = btn.querySelector("morph-icon");
       try {
-        await api(`/${kind}/${id}`, { method: "DELETE" });
+        await api(`/${path}/${id}`, { method: "DELETE" });
         flash(ic, "check", 500);
         tr.remove();
         const cnt = `#${kind === "gifts" ? "gift" : "song"}-count`;
@@ -386,8 +405,21 @@ function bindDelete(tbody, kind) {
   });
 }
 
-bindDelete($("#gift-tbody"), "gifts");
-bindDelete($("#song-tbody"), "songs");
+bindDelete($("#gift-tbody"), "gifts", "admin/gifts");
+bindDelete($("#song-tbody"), "songs", "songs");
+
+/* 登记 / 修改快递单号：弹窗填写后保存到对应舰礼 */
+let currentTrackingId = 0;
+document.addEventListener("click", (e) => {
+  const tb = e.target.closest(".track-btn");
+  if (!tb) return;
+  e.stopPropagation();
+  const tr = tb.closest("tr");
+  currentTrackingId = Number(tr.dataset.id);
+  openModal("快递单号", "tracking", [
+    { k: "trackingNumber", label: "快递单号", ph: "如：SF1234567890（留空可清除）", value: tr.dataset.tracking || "", max: 64 },
+  ]);
+});
 
 /* ---------------- 新增弹窗 ---------------- */
 
@@ -396,12 +428,18 @@ const modalForm = $("#modal-form");
 let modalKind = null;
 
 function fieldHtml(f) {
+  const val = f.value ? ` value="${f.value}"` : "";
+  if (f.options && f.options.length) {
+    const opts = f.options.map((o) => `<option>${o}</option>`).join("");
+    return `<label class="field">${f.label}<select name="${f.k}"${f.required ? " required" : ""}>${opts}</select></label>`;
+  }
   const attrs = [
     `name="${f.k}"`,
     `placeholder="${f.ph}"`,
     f.required ? "required" : "",
     f.pattern ? `pattern="${f.pattern}" title="${f.ph}"` : "",
     f.max ? `maxlength="${f.max}"` : "",
+    val,
   ].join(" ");
   return `<label class="field">${f.label}<input ${attrs}></label>`;
 }
@@ -454,7 +492,18 @@ modalForm.addEventListener("submit", async (e) => {
   const btn = $("#modal-save");
   btn.disabled = true;
   try {
-    await api(`/${kind === "gift" ? "gifts" : "songs"}`, { method: "POST", body: data });
+    if (kind === "tracking") {
+      await api(`/admin/gifts/${currentTrackingId}/tracking`, {
+        method: "POST",
+        body: { trackingNumber: (data.trackingNumber || "").trim() },
+      });
+      closeModal();
+      toast("快递单号已登记");
+      loadGifts().catch(() => {});
+      return;
+    }
+    const path = kind === "gift" ? "admin/gifts" : "songs";
+    await api(`/${path}`, { method: "POST", body: data });
     closeModal();
     const headBtn = $(`[data-action="add-${kind}"]`);
     headBtn && flash(headBtn.querySelector("morph-icon"), "check");

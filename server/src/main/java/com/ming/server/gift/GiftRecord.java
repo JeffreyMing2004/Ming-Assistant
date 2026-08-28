@@ -41,6 +41,10 @@ public class GiftRecord {
     @Column(name = "gift_type", nullable = false, length = 50)
     private String giftType;
 
+    /** 后台登记的快递单号，用户在 App 端可查询物流。 */
+    @Column(name = "tracking_number", length = 64)
+    private String trackingNumber;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 }

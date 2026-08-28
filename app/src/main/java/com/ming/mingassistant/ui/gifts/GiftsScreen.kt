@@ -20,6 +20,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -71,7 +72,7 @@ fun GiftsScreen(
             Spacer(Modifier.height(4.dp))
             Text("舰礼收集", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text(
-                "记录展会 / 直播中收到的舰长提督等",
+                "在直播间开通大航海（舰长 / 提督 / 总督）后登记收货地址，发货后可在此查询快递单号",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -177,6 +178,14 @@ private fun GiftRow(gift: GiftRecord, onDelete: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                gift.trackingNumber.takeIf { it.isNotBlank() }?.let {
+                    Text(
+                        "快递单号 $it",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
             IconButton(onClick = onDelete) {
                 Icon(Icons.Filled.Delete, contentDescription = "删除", tint = MaterialTheme.colorScheme.error)
@@ -234,13 +243,16 @@ private fun AddGiftDialog(
                     label = { Text("住址 *") },
                     modifier = Modifier.fillMaxWidth(),
                 )
-                OutlinedTextField(
-                    value = giftType,
-                    onValueChange = { giftType = it },
-                    label = { Text("礼物类型 *") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                Text("大航海 *", style = MaterialTheme.typography.labelLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DeliveryTier.values().forEach { tier ->
+                        FilterChip(
+                            selected = giftType == tier.label,
+                            onClick = { giftType = tier.label },
+                            label = { Text(tier.label) },
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
@@ -257,4 +269,11 @@ private fun AddGiftDialog(
             TextButton(onClick = onDismiss, enabled = !submitting) { Text("取消") }
         },
     )
+}
+
+/** 大航海档位：舰长 / 提督 / 总督 */
+private enum class DeliveryTier(val label: String) {
+    CAPTAIN("舰长"),
+    ADMIRAL("提督"),
+    GOVERNOR("总督"),
 }

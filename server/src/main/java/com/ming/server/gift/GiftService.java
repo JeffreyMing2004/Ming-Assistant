@@ -1,6 +1,7 @@
 package com.ming.server.gift;
 
 import com.ming.server.config.ApiException;
+import com.ming.server.gift.dto.AdminGiftView;
 import com.ming.server.gift.dto.GiftRequest;
 import com.ming.server.user.User;
 import com.ming.server.user.UserRepository;
@@ -43,5 +44,37 @@ public class GiftService {
             throw ApiException.notFound("舰礼记录不存在");
         }
         giftRepository.deleteById(id);
+    }
+
+    /* ---------- 以下为站长后台管理操作 ---------- */
+
+    /** 后台查看全部用户提交的舰礼（含提交人用户名）。 */
+    public List<AdminGiftView> listAll() {
+        return giftRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(g -> {
+                    String username = userRepository.findById(g.getUserId())
+                            .map(User::getUsername)
+                            .orElse("—");
+                    return AdminGiftView.from(g, username);
+                })
+                .toList();
+    }
+
+    /** 后台删除任意一条舰礼记录。 */
+    @Transactional
+    public void deleteById(Long id) {
+        if (!giftRepository.existsById(id)) {
+            throw ApiException.notFound("舰礼记录不存在");
+        }
+        giftRepository.deleteById(id);
+    }
+
+    /** 后台登记 / 修改该条舰礼的快递单号（用户可在 App 查询物流）。 */
+    @Transactional
+    public GiftRecord setTracking(Long id, String trackingNumber) {
+        GiftRecord record = giftRepository.findById(id)
+                .orElseThrow(() -> ApiException.notFound("舰礼记录不存在"));
+        record.setTrackingNumber(trackingNumber == null ? null : trackingNumber.trim());
+        return giftRepository.save(record);
     }
 }

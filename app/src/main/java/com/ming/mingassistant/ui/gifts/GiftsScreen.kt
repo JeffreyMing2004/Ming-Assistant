@@ -178,7 +178,7 @@ private fun GiftRow(gift: GiftRecord, onDelete: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                gift.trackingNumber.takeIf { it.isNotBlank() }?.let {
+                gift.trackingNumber?.takeIf { it.isNotBlank() }?.let {
                     Text(
                         "快递单号 $it",
                         style = MaterialTheme.typography.bodyMedium,

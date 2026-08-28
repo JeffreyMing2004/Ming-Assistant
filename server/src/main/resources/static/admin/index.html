@@ -5,13 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ming Assistant · 管理端</title>
 <link rel="stylesheet" href="./styles.css">
-<script type="module" src="./app.js"></script>
+<script>
+/* 页面级错误监控：模块脚本的任何运行时异常都会在页面顶部红条显示，
+   避免“点了没反应也没提示”时无从排查。 */
+(function () {
+  function banner(msg) {
+    let d = document.getElementById("page-error");
+    if (!d) {
+      d = document.createElement("div");
+      d.id = "page-error";
+      d.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0272d;color:#fff;padding:8px 12px;font:12px/1.5 sans-serif;white-space:pre-wrap;";
+      document.body.prepend(d);
+    }
+    d.textContent = "页面错误：" + msg;
+  }
+  window.addEventListener("error", function (e) {
+    var src = e.target && e.target.src ? " [src=" + e.target.src.split("/").slice(-1)[0] + "]" : "";
+    var msg = e.message || (e.type === "error" && src ? "资源加载失败" + src : e.type);
+    if (e.filename) msg += " @" + e.filename.split("/").slice(-1)[0] + ":" + e.lineno;
+    banner(msg + src);
+  }, true);
+  window.addEventListener("unhandledrejection", function (e) {
+    var r = e.reason;
+    banner("未处理的失败： " + (r && r.message ? r.message : String(r)));
+  });
+  // 兜底：模块脚本若未在限定时间内完成启动，提示刷新
+  window.__adminBooted = false;
+  setTimeout(function () {
+    if (!window.__adminBooted) {
+      banner("管理端脚本未完成启动，请强制刷新页面（Ctrl+F5）。若仍如此请向站长反馈本行内容。");
+    }
+  }, 4000);
+})();
+</script>
+<script type="module" src="./app.js?v=20260828-3"></script>
 </head>
 <body>
 
   <!-- 登录视图 -->
   <div id="login-view" class="view">
-    <form class="login-card" id="login-form" novalidate>
+    <form class="login-card" id="login-form" novalidate onsubmit="return false">
       <div class="login-brand"><morph-icon data-icon="zap" data-size="34"></morph-icon><h1>Ming Assistant</h1></div>
       <p class="sub">站长后台 · 管理端</p>
       <label class="field">用户名

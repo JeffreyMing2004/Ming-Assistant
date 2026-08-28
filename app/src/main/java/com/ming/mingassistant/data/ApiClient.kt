@@ -18,7 +18,7 @@ object ApiClient {
      */
     const val BASE_URL: String = BuildConfig.API_BASE_URL
 
-    val json = Json { ignoreUnknownKeys = true }
+    val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
 
     val service: ApiService by lazy {
         val logging = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC }

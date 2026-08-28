@@ -1,7 +1,7 @@
 // Ming Assistant · 电脑管理端
 // 图标全部使用 morphicons 动态图标库（<morph-icon>），状态变化时图标会以弹簧物理动画变形。
 import { icons } from "./icons.js";
-import { defineMorphIcon } from "../morphicons/element.js";
+import { defineMorphIcon } from "../morphicons/element.js?v=1";
 
 defineMorphIcon();
 
@@ -103,15 +103,28 @@ function loadGt4Sdk() {
 async function initGt4Captcha() {
   const cfg = await gt4ConfigPromise;
   if (!cfg || !cfg.captchaId) return; // 未配置验证码
-  await loadGt4Sdk();
-  await new Promise((resolve, reject) => {
+  try {
+    await loadGt4Sdk();
+  } catch (e) {
+    captchaLoadError(e && e.message ? e.message : "验证码 SDK 加载失败");
+    return;
+  }
+  await new Promise((resolve) => {
+    let done = false;
+    const finish = (failMsg) => {
+      if (done) return;
+      done = true;
+      resolve();
+      if (failMsg) captchaLoadError(failMsg);
+    };
     try {
       window.initGeetest4(
         { captchaId: cfg.captchaId, product: "float" },
         (captcha) => {
           gt4Captcha = captcha;
           captcha.appendTo("#gt4-captcha");
-          captcha.onReady(resolve);
+          captcha.onReady(() => finish(null));
+          captcha.onError(() => finish("安全验证加载失败，请刷新页面后重试"));
           captcha.onSuccess(() => {
             const result = captcha.getValidate();
             if (result) {
@@ -122,9 +135,20 @@ async function initGt4Captcha() {
         },
       );
     } catch (e) {
-      reject(new Error("验证码初始化失败"));
+      finish("验证码初始化失败，请刷新页面后重试");
     }
+    // 超时保护：SDK 或组件 8 秒内无响应则提示，不再无限等待
+    setTimeout(() => finish("安全验证加载超时，请刷新页面后重试"), 8000);
   });
+}
+
+function captchaLoadError(msg) {
+  const p = $("#login-err");
+  if (p) {
+    p.textContent = msg;
+    p.classList.remove("hidden");
+  }
+  toast(msg);
 }
 
 function resetGt4() {
@@ -185,6 +209,9 @@ $("#login-form").addEventListener("submit", async (e) => {
     };
     if (cfg && cfg.captchaId) {
       if (!gt4Result) {
+        const p = $("#login-err");
+        p.textContent = "请先点击「安全验证」并完成滑块验证，再点击登录。";
+        p.classList.remove("hidden");
         toast("请先完成安全验证");
         if (gt4Captcha) {
           try { gt4Captcha.showCaptcha(); } catch (e) { /* ignore */ }
@@ -626,6 +653,7 @@ function toast(msg) {
 
 /* ---------------- 启动 ---------------- */
 
+window.__adminBooted = true;
 applyStaticIcons();
 if (token && user) {
   enterApp();

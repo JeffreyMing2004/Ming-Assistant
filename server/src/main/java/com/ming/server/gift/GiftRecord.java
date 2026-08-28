@@ -1,5 +1,6 @@
 package com.ming.server.gift;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,6 +30,7 @@ public class GiftRecord {
     @Column(nullable = false, length = 50)
     private String nickname;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Column(name = "bilibili_uid", length = 32)
     private String bilibiliUid;
 
@@ -42,6 +44,7 @@ public class GiftRecord {
     private String giftType;
 
     /** 后台登记的快递单号，用户在 App 端可查询物流。 */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Column(name = "tracking_number", length = 64)
     private String trackingNumber;
 

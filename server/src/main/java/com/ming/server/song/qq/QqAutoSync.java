@@ -34,7 +34,7 @@ public class QqAutoSync {
     private String ownerUsername;
 
     @Scheduled(fixedDelayString = "${app.qq.sync-interval-ms:1800000}",
-            initialDelayString = "${app.qq.sync-interval-ms:1800000}")
+            initialDelayString = "5000")
     public void sync() {
         if (!syncEnabled || playlist == null || playlist.isBlank()) {
             return;

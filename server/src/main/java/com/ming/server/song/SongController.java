@@ -1,11 +1,9 @@
 package com.ming.server.song;
 
-import com.ming.server.security.AppPrincipal;
 import com.ming.server.song.dto.SongRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,18 +20,17 @@ public class SongController {
     private final SongService songService;
 
     @PostMapping
-    public Song create(@AuthenticationPrincipal AppPrincipal principal,
-                       @Valid @RequestBody SongRequest request) {
-        return songService.create(principal.userId(), request);
+    public Song create(@Valid @RequestBody SongRequest request) {
+        return songService.create(request);
     }
 
     @GetMapping
-    public List<Song> list(@AuthenticationPrincipal AppPrincipal principal) {
-        return songService.list(principal.userId());
+    public List<Song> list() {
+        return songService.list();
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@AuthenticationPrincipal AppPrincipal principal, @PathVariable Long id) {
-        songService.delete(principal.userId(), id);
+    public void delete(@PathVariable Long id) {
+        songService.delete(id);
     }
 }

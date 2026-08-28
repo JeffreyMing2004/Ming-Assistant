@@ -2,7 +2,6 @@ package com.ming.mingassistant.ui.home
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,7 +40,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.ming.mingassistant.data.LiveStatus
 import com.ming.mingassistant.ui.theme.BilibiliPink
-import com.ming.mingassistant.work.LiveStatusWorker
 
 @Composable
 fun HomeScreen(factory: androidx.lifecycle.ViewModelProvider.Factory) {
@@ -181,5 +179,9 @@ private fun LiveStatusCard(status: LiveStatus, onOpenLive: (String) -> Unit) {
 
 private fun openBrowser(context: android.content.Context, url: String) {
     val trimmed = if (url.startsWith("//")) "https:$url" else url
-    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(trimmed)))
+    runCatching {
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(trimmed)))
+    }.onFailure { e ->
+        android.util.Log.e("HomeScreen", "无法打开直播间链接", e)
+    }
 }

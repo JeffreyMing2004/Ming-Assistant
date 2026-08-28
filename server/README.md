@@ -33,7 +33,7 @@ mvn spring-boot:run
 | MySQL 密码 | `MING_DB_PASSWORD` | `Aa123123` | 生产环境务必修改 |
 | 服务端口 | `MING_SERVER_PORT` | `8080` | |
 | JWT 密钥 | `MING_JWT_SECRET` | 开发用默认值 | 生产环境务必修改 |
-| B站主播 UID | `app.bilibili.uid` | `342163344` | 明明Uncle |
+| B站主播 UID | `app.bilibili.uid` | `342163344` | 明鸽子 |
 
 ## 接口一览
 
@@ -42,7 +42,7 @@ mvn spring-boot:run
 | POST | `/api/auth/register` | 否 | 注册：`{bilibiliUid, username, password, confirmPassword}` |
 | POST | `/api/auth/login` | 否 | 登录：`{username, password}` → 返回 JWT |
 | GET | `/api/auth/me` | 是 | 当前用户信息 |
-| GET | `/api/live/status` | 否 | 明明Uncle 直播状态（代理 B站公开接口，60s 缓存） |
+| GET | `/api/live/status` | 否 | 明鸽子 直播状态（代理 B站公开接口，60s 缓存） |
 | POST | `/api/gifts` | 是 | 新增舰礼：`{nickname, bilibiliUid?, giftType}` |
 | GET | `/api/gifts` | 是 | 我的舰礼列表（按时间倒序） |
 | DELETE | `/api/gifts/{id}` | 是 | 删除舰礼 |

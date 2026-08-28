@@ -10,6 +10,8 @@ const API = "/api";
 
 let token = localStorage.getItem("ma_token") || "";
 let user = JSON.parse(localStorage.getItem("ma_user") || "null");
+let ownerUsername = null;
+const isOwner = () => !!ownerUsername && !!user && user.username === ownerUsername;
 
 /* ---------------- 图标辅助 ---------------- */
 
@@ -132,7 +134,33 @@ function enterApp() {
   applyGiftGate();
   loadLive();
   loadGifts();
-  loadSongs();
+  loadAppConfig().then(() => {
+    applySongGate();
+    loadSongs();
+  });
+}
+
+/* 读取后端基础配置（歌单站长账号名），用于歌单增删的权限门 */
+async function loadAppConfig() {
+  try {
+    const cfg = await api("/app/config");
+    ownerUsername = (cfg && cfg.ownerUsername) || null;
+  } catch (e) {
+    if (e && e.message.includes("登录")) return;
+  }
+}
+
+function applySongGate() {
+  const btn = document.querySelector('[data-action="add-song"]');
+  if (btn) {
+    btn.disabled = !isOwner();
+    btn.classList.toggle("disabled", !isOwner());
+  }
+  const warn = document.getElementById("song-warn");
+  if (warn) {
+    warn.textContent = "仅站长账号可新增 / 删除歌曲，其他账号只读。";
+    warn.classList.toggle("hidden", isOwner());
+  }
 }
 
 /* 从服务器同步账号信息（B站UID 等），并据此启闭“新增舰礼”能力 */
@@ -278,11 +306,13 @@ function songRow(s) {
   tr.dataset.id = s.id;
   const ops = document.createElement("td");
   ops.className = "ops";
-  const del = document.createElement("button");
-  del.className = "row-btn";
-  del.title = "删除（再次点击确认）";
-  del.append(mkIcon("trash-2", 16));
-  ops.append(del);
+  if (isOwner()) {
+    const del = document.createElement("button");
+    del.className = "row-btn";
+    del.title = "删除（再次点击确认）";
+    del.append(mkIcon("trash-2", 16));
+    ops.append(del);
+  }
 
   const td = (txt, cls) => {
     const t = document.createElement("td");
@@ -335,6 +365,10 @@ function bindDelete(tbody, kind) {
     const btn = e.target.closest(".row-btn");
     if (!btn) return;
     e.stopPropagation();
+    if (kind === "songs" && !isOwner()) {
+      toast("仅站长可删除歌曲");
+      return;
+    }
     const tr = btn.closest("tr");
     if (armedBtn === btn) {
       const id = tr.dataset.id;
@@ -403,7 +437,13 @@ document.addEventListener("click", (e) => {
     }
     openModal("新增舰礼登记", "gift", giftKinds);
   }
-  if (a === "add-song") openModal("新增歌曲", "song", songKinds);
+  if (a === "add-song") {
+    if (!isOwner()) {
+      toast("仅站长可新增歌曲");
+      return;
+    }
+    openModal("新增歌曲", "song", songKinds);
+  }
 });
 
 function closeModal() {

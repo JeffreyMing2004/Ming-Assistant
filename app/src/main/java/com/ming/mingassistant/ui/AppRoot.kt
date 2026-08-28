@@ -1,19 +1,23 @@
 package com.ming.mingassistant.ui
 
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -79,6 +83,11 @@ fun AppRoot(session: Session?) {
 
 private data class TabItem(val route: String, val label: String, val icon: ImageVector)
 
+// 底部导航局部配色（不改全局主题）
+private val NavAccent = Color(0xFF7C4DFF)
+private val NavIndicator = Color(0xFFF3EDFF)
+private val NavMuted = Color(0xFF6F6B78)
+
 private val tabs = listOf(
     TabItem("home", "首页", Icons.Filled.Home),
     TabItem("songs", "直播歌单", Icons.Filled.PlayArrow),
@@ -100,7 +109,11 @@ private fun MainScaffold(
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = Color.White,
+                tonalElevation = 6.dp,
+                modifier = Modifier.defaultMinSize(minHeight = 68.dp),
+            ) {
                 tabs.forEach { tab ->
                     NavigationBarItem(
                         selected = currentRoute == tab.route,
@@ -113,6 +126,13 @@ private fun MainScaffold(
                         },
                         icon = { Icon(tab.icon, contentDescription = tab.label) },
                         label = { Text(tab.label) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = NavAccent,
+                            selectedTextColor = NavAccent,
+                            indicatorColor = NavIndicator,
+                            unselectedIconColor = NavMuted,
+                            unselectedTextColor = NavMuted,
+                        ),
                     )
                 }
             }

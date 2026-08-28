@@ -3,6 +3,15 @@
 build/
 !gradle/wrapper/gradle-wrapper.jar
 
+# Maven (server/)
+server/target/
+
+# Local dev artifacts
+server.log
+server.err.log
+server.pid
+live_check.json
+
 # Local configuration
 local.properties
 

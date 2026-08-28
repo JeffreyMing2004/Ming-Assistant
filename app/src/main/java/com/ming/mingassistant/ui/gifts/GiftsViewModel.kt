@@ -28,7 +28,7 @@ class GiftsViewModel(private val repo: GiftRepository = GiftRepository()) : View
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(loading = true, error = null)
             repo.list()
-                .onSuccess { list -> _uiState.value = GiftsUiState(gifts = list) }
+                .onSuccess { list -> _uiState.value = GiftsUiState(gifts = list, loading = false) }
                 .onFailure { e -> _uiState.value = _uiState.value.copy(loading = false, error = e.message) }
         }
     }

@@ -30,3 +30,8 @@ app:
     # 在启动时注册（不存在）或重置（已存在）admin_users 表中的管理员账号
     bootstrap-username: ${APP_ADMIN_USERNAME:}
     bootstrap-password: ${APP_ADMIN_PASSWORD:}
+  geetest:
+    # 极验 GT4 验证码（网页端/管理端登录保护）：配置 MING_GT4_CAPTCHA_ID / MING_GT4_CAPTCHA_KEY
+    # 后启用；未配置时管理端登录不校验验证码（开发模式）
+    captcha-id: ${MING_GT4_CAPTCHA_ID:}
+    captcha-key: ${MING_GT4_CAPTCHA_KEY:}

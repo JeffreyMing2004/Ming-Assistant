@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/admin/login", "/api/live/status").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/admin/login", "/api/live/status", "/api/app/config").permitAll()
                         .requestMatchers(
                                 "/", "/index.html", "/favicon.ico",
                                 "/admin", "/admin/**", "/morphicons/**",

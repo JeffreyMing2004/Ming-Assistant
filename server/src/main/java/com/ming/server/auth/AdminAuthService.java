@@ -5,6 +5,7 @@ import com.ming.server.admin.AdminUserRepository;
 import com.ming.server.auth.dto.AdminLoginRequest;
 import com.ming.server.auth.dto.AdminLoginResponse;
 import com.ming.server.config.ApiException;
+import com.ming.server.security.GeetestService;
 import com.ming.server.security.JwtService;
 import com.ming.server.user.User;
 import com.ming.server.user.UserRepository;
@@ -21,6 +22,7 @@ public class AdminAuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final GeetestService geetestService;
 
     @Value("${app.qq.owner-username:testuser}")
     private String ownerUsername;
@@ -30,6 +32,9 @@ public class AdminAuthService {
      * 登录成功后签发管理员 JWT，以站长用户（owner）身份行使后台操作。
      */
     public AdminLoginResponse login(AdminLoginRequest req) {
+        // 先过极验 GT4 安全验证（未配置时跳过）
+        geetestService.verify(req.getLotNumber(), req.getCaptchaOutput(), req.getPassToken(), req.getGenTime());
+
         AdminUser admin = adminUserRepository.findByUsername(req.getUsername())
                 .orElseThrow(() -> ApiException.unauthorized("管理员账号或密码错误"));
         if (!passwordEncoder.matches(req.getPassword(), admin.getPasswordHash())) {

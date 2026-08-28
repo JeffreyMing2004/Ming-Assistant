@@ -73,6 +73,72 @@ async function api(path, { method = "GET", body } = {}) {
   return data;
 }
 
+/* ---------------- 极验 GT4 验证码（网页端登录保护） ---------------- */
+
+let gt4Captcha = null;
+let gt4Result = null;
+let gt4Config = null;
+const gt4ConfigPromise = loadGt4Config();
+
+async function loadGt4Config() {
+  try {
+    gt4Config = await api("/app/config");
+  } catch (e) {
+    gt4Config = null;
+  }
+  return gt4Config;
+}
+
+function loadGt4Sdk() {
+  return new Promise((resolve, reject) => {
+    if (window.initGeetest4) return resolve();
+    const s = document.createElement("script");
+    s.src = "https://static.geetest.com/v4/gt4.js";
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error("验证码 SDK 加载失败，请刷新后重试"));
+    document.head.append(s);
+  });
+}
+
+async function initGt4Captcha() {
+  const cfg = await gt4ConfigPromise;
+  if (!cfg || !cfg.captchaId) return; // 未配置验证码
+  await loadGt4Sdk();
+  await new Promise((resolve, reject) => {
+    try {
+      window.initGeetest4(
+        { captchaId: cfg.captchaId, product: "float" },
+        (captcha) => {
+          gt4Captcha = captcha;
+          captcha.appendTo("#gt4-captcha");
+          captcha.onReady(resolve);
+          captcha.onSuccess(() => {
+            const result = captcha.getValidate();
+            if (result) {
+              result.captcha_id = cfg.captchaId;
+              gt4Result = result;
+            }
+          });
+        },
+      );
+    } catch (e) {
+      reject(new Error("验证码初始化失败"));
+    }
+  });
+}
+
+function resetGt4() {
+  gt4Result = null;
+  if (gt4Captcha) {
+    try { gt4Captcha.reset(); } catch (e) { /* ignore */ }
+  }
+}
+
+// 页面加载后初始化验证码（登录页）
+gt4ConfigPromise
+  .then((cfg) => (cfg && cfg.captchaId) ? initGt4Captcha() : null)
+  .catch((e) => toast(e && e.message ? e.message : "验证码加载失败"));
+
 /* ---------------- 登录 / 注销 ---------------- */
 
 function fmtTime(iso) {
@@ -108,9 +174,31 @@ $("#login-form").addEventListener("submit", async (e) => {
   const btn = $("#login-btn");
   btn.disabled = true;
   try {
+    const cfg = await gt4ConfigPromise;
+    const body = {
+      username: fd.get("username"),
+      password: fd.get("password"),
+      lotNumber: "",
+      captchaOutput: "",
+      passToken: "",
+      genTime: "",
+    };
+    if (cfg && cfg.captchaId) {
+      if (!gt4Result) {
+        toast("请先完成安全验证");
+        if (gt4Captcha) {
+          try { gt4Captcha.showCaptcha(); } catch (e) { /* ignore */ }
+        }
+        return;
+      }
+      body.lotNumber = gt4Result.lot_number || "";
+      body.captchaOutput = gt4Result.captcha_output || "";
+      body.passToken = gt4Result.pass_token || "";
+      body.genTime = gt4Result.gen_time == null ? "" : String(gt4Result.gen_time);
+    }
     const res = await api("/admin/login", {
       method: "POST",
-      body: { username: fd.get("username"), password: fd.get("password") },
+      body,
     });
     token = res.token;
     user = { username: res.username, name: res.name || res.username, admin: true };
@@ -120,6 +208,7 @@ $("#login-form").addEventListener("submit", async (e) => {
     enterApp();
     toast(`登录成功，欢迎回来，${user.name}`);
   } catch (err) {
+    resetGt4(); // 验证码一次一验，失败需重新完成
     const p = $("#login-err");
     p.textContent = err.message;
     p.classList.remove("hidden");
